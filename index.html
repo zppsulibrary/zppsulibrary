@@ -3,89 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <script src="script.js"></script>
     <title>ZPPSU LIBRARY Registration Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
-        .title {
-            text-align: center;
-            font-size: 24px;
-            margin: 20px 0;
-            font-weight: bold;
-            color: #fff;
-            padding: 10px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .container {
-            padding: 20px;
-            width: 100%;
-            height: calc(100vh - 60px);
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        form {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
-        label {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        input[type="text"] {
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-        }
-        .name-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .name-group input {
-            flex: 1;
-        }
-        .name-group input:nth-child(3) {
-            max-width: 50px;
-        }
-        .submit-button {
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .submit-button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 </head>
 <body>
-    <div class="title">ZPPSU LIBRARY Registration Form</div>
     <div class="container">
+        <div class="title">ZPPSU LIBRARY Registration Form</div>
         <form action="#" method="post">
             <label for="lastname">Name:</label>
             <div class="name-group">
                 <input type="text" id="lastname" name="lastname" placeholder="Lastname" required>
                 <input type="text" id="givenname" name="givenname" placeholder="Givenname" required>
-                <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
+                <input type="text" id="mi " name="mi" placeholder="MI" maxlength="1" required>
             </div>
+            <label for="program">Program:</label>
+            <select id="program" name="program" onchange="updateCourses()" required>
+                <option value="CAT">CAT</option>
+                <option value="CTE">CTE</option>
+                <option value="CICS">CICS</option>
+            </select>
+            <label for="course">Course:</label>
+            <select id="course" name="course" required>
+                <option value="">-- Select Course --</option>
+            </select>
             <button type="submit" class="submit-button">Submit</button>
         </form>
     </div>
