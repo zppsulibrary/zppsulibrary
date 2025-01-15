@@ -3,9 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZPPSU Library</title>
+    <title>ZPPSU LIBRARY Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .name-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .name-group input {
+            flex: 1;
+        }
+        .name-group input:nth-child(3) {
+            max-width: 50px;
+        }
+        .submit-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="container">
+        <div class="title">ZPPSU LIBRARY Registration Form</div>
+        <form action="#" method="post">
+            <label for="lastname">Name:</label>
+            <div class="name-group">
+                <input type="text" id="lastname" name="lastname" placeholder="Lastname" required>
+                <input type="text" id="givenname" name="givenname" placeholder="Givenname" required>
+                <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
 </body>
 </html>
