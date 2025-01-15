@@ -9,29 +9,37 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             background-color: #f4f4f9;
         }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: bold;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
         .container {
+            padding: 20px;
+            width: 100%;
+            height: calc(100vh - 60px);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        form {
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-        }
-        .title {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
         }
         label {
             font-size: 14px;
@@ -70,8 +78,8 @@
     </style>
 </head>
 <body>
+    <div class="title">ZPPSU LIBRARY Registration Form</div>
     <div class="container">
-        <div class="title">ZPPSU LIBRARY Registration Form</div>
         <form action="#" method="post">
             <label for="lastname">Name:</label>
             <div class="name-group">
