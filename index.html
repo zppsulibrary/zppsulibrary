@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
     <title>ZPPSU LIBRARY Registration Form</title>
 </head>
 <body>
@@ -17,6 +17,7 @@
                 <input type="text" id="givenname" name="givenname" placeholder="Givenname" required>
                 <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
             </div>
+
             <label for="program">Program:</label>
             <select id="program" name="program" onchange="updateCourses()" required>
                 <option value="">-- Select Program --</option>
@@ -24,9 +25,15 @@
                 <option value="CTE">CTE</option>
                 <option value="CICS">CICS</option>
             </select>
+
             <label for="course">Course:</label>
-            <select id="course" name="course" required>
+            <select id="course" name="course" onchange="updateMajors()" required>
                 <option value="">-- Select Course --</option>
+            </select>
+
+            <label for="major">Major:</label>
+            <select id="major" name="major" required>
+                <option value="">-- Select Major --</option>
             </select>
 
             <label for="patron-type">Type of Patrons:</label>
