@@ -62,7 +62,7 @@
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-
+    
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
@@ -72,64 +72,85 @@
             messagingSenderId: "693170608073",
             appId: "1:693170608073:web:09d728cfb6489d7675fa18"
         };
-
+    
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-
+    
+        // Function to format the date in DD/MM/YY 12-hour format with AM/PM
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = String(date.getFullYear()).slice(-2);
+            
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+            // Convert to 12-hour format
+            hours = hours % 12;
+            hours = hours ? String(hours).padStart(2, '0') : '12';  // The hour '0' should be '12'
+    
+            return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
+        }
+    
         // Handle form submission
         document.querySelector("#registrationForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    // Collect form data
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-
-    // Display confirmation dialog
-    const result = await Swal.fire({
-        title: "Submit Registration?",
-        text: "Make sure all details are correct.",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Submit",
-        cancelButtonText: "Cancel"
-    });
-
-    if (result.isConfirmed) {
-        try {
-            // Save data to Firestore
-            await addDoc(collection(db, "registrations"), data);
-
-            // Success message
-            Swal.fire({
-                title: "Success!",
-                text: "Your registration has been submitted.",
-                icon: "success",
-                timer: 3000,
-                showConfirmButton: false
+            event.preventDefault();
+    
+            // Collect form data
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+    
+            // Add the current date and time to the data in desired format
+            const currentDate = new Date();
+            data.submissionDate = formatDate(currentDate); // Store formatted date and time
+            data.scanCount = 1;  // Initial scan count
+    
+            // Display confirmation dialog
+            const result = await Swal.fire({
+                title: "Submit Registration?",
+                text: "Make sure all details are correct.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Submit",
+                cancelButtonText: "Cancel"
             });
-
-            // Reset the form and dropdowns
-            event.target.reset();
-            document.getElementById("course").innerHTML = "<option value=''>-- Select Course --</option>";
-            document.getElementById("major").innerHTML = "<option value=''>-- Select Major --</option>";
-
-        } catch (error) {
-            Swal.fire({
-                title: "Error",
-                text: `Failed to submit registration: ${error.message}`,
-                icon: "error"
-            });
-        }
-    } else {
-        Swal.fire({
-            title: "Cancelled",
-            text: "Your registration was not submitted.",
-            icon: "error"
+    
+            if (result.isConfirmed) {
+                try {
+                    // Save data to Firestore
+                    await addDoc(collection(db, "registrations"), data);
+    
+                    // Success message
+                    Swal.fire({
+                        title: "Success!",
+                        text: "Your registration has been submitted.",
+                        icon: "success",
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+    
+                    // Reset the form and dropdowns
+                    event.target.reset();
+                    document.getElementById("course").innerHTML = "<option value=''>-- Select Course --</option>";
+                    document.getElementById("major").innerHTML = "<option value=''>-- Select Major --</option>";
+    
+                } catch (error) {
+                    Swal.fire({
+                        title: "Error",
+                        text: `Failed to submit registration: ${error.message}`,
+                        icon: "error"
+                    });
+                }
+            } else {
+                Swal.fire({
+                    title: "Cancelled",
+                    text: "Your registration was not submitted.",
+                    icon: "error"
+                });
+            }
         });
-    }
-});
-    </script>
+    </script>    
 </body>
 </html>
