@@ -59,4 +59,97 @@
         
     </div>
 </body>
+<script>
+    // Firebase configuration
+    const firebaseConfig = {
+  apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
+  authDomain: "zppsulibrary-3f15b.firebaseapp.com",
+  projectId: "zppsulibrary-3f15b",
+  storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
+  messagingSenderId: "693170608073",
+  appId: "1:693170608073:web:5a92d9c695a10bc975fa18"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+console.log("Firebase initialized");
+
+// Get Firestore instance
+const db = firebase.firestore();
+
+// Anonymous authentication setup
+async function signInAnonymously() {
+    try {
+        const userCredential = await firebase.auth().signInAnonymously();
+        console.log("User signed in anonymously", userCredential);
+        return userCredential.user;
+    } catch (error) {
+        console.error("Error signing in anonymously: ", error);
+        alert("Error signing in. Please try again.");
+        return null;
+    }
+}
+
+// Form submission handler
+document.querySelector('form').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent form from refreshing the page
+    console.log("Form submission triggered");
+
+    // Get form data
+    const lastname = document.getElementById('lastname').value;
+    const givenname = document.getElementById('givenname').value;
+    const mi = document.getElementById('mi').value;
+    const program = document.getElementById('program').value;
+    const course = document.getElementById('course').value;
+    const major = document.getElementById('major').value;
+    const patronType = document.getElementById('patron-type').value;
+    const schoolYear = document.getElementById('school-year').value;
+    const semester = document.getElementById('semester').value;
+
+    // Log form data for debugging
+    console.log("Form Data:", {
+        lastname,
+        givenname,
+        mi,
+        program,
+        course,
+        major,
+        patronType,
+        schoolYear,
+        semester
+    });
+
+    // Sign in the user anonymously
+    const user = await signInAnonymously();
+    if (!user) {
+        return; // If no user, exit early
+    }
+
+    // Create a new document ID for this user (using the UID)
+    const docId = user.uid;
+
+    // Add data to Firestore
+    try {
+        console.log("Attempting to add data to Firestore with document ID:", docId);
+        await db.collection('libraryRegistrations').doc(docId).set({
+            lastname,
+            givenname,
+            mi,
+            program,
+            course,
+            major,
+            patronType,
+            schoolYear,
+            semester,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log("Registration successful!");
+        alert("Registration successful!");
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        alert("Error registering. Please try again.");
+    }
+});
+
+</script>
 </html>
