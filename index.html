@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
     <script src="script.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
     <title>ZPPSU LIBRARY Registration Form</title>
 </head>
 <body>
@@ -24,14 +26,14 @@
                 <option value="CTE">CTE</option>
                 <option value="CICS">CICS</option>
             </select>
-            <label for="course">Course:</label>
+            
             <select id="course" name="course" required>
                 <option value="">-- Select Course --</option>
             </select>
-            <label for="major">Major:</label>
+            
             <select id="major" name="major">
                 <option value="">-- Select Major --</option>
-            </select>
+            </select>            
             <label for="patron-type">Type of Patrons:</label>
             <select id="patron-type" name="patron-type" required>
                 <option value="">-- Select Patrons --</option>
