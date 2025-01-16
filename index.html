@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
     <script src="script.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>    
     <title>ZPPSU LIBRARY Registration Form</title>
 </head>
 <body>
@@ -61,7 +58,7 @@
     </div>
 </body>
 <script>
-    // Firebase configuration
+    // Your web app's Firebase configuration
     const firebaseConfig = {
   apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
   authDomain: "zppsulibrary-3f15b.firebaseapp.com",
@@ -72,85 +69,72 @@
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-console.log("Firebase initialized");
-
-// Get Firestore instance
+const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Anonymous authentication setup
-async function signInAnonymously() {
-    try {
-        const userCredential = await firebase.auth().signInAnonymously();
-        console.log("User signed in anonymously", userCredential);
-        return userCredential.user;
-    } catch (error) {
-        console.error("Error signing in anonymously: ", error);
-        alert("Error signing in. Please try again.");
-        return null;
+// Function to update courses based on selected program
+function updateCourses() {
+    const program = document.getElementById('program').value;
+    const courseSelect = document.getElementById('course');
+    const majorSelect = document.getElementById('major');
+
+    // Clear previous options
+    courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+    majorSelect.innerHTML = '<option value="">-- Select Major --</option>';
+
+    if (program === 'CAT') {
+        courseSelect.innerHTML += '<option value="BSIT">BSIT</option>';
+        majorSelect.innerHTML += '<option value="Web Development">Web Development</option>';
+    } else if (program === 'CTE') {
+        courseSelect.innerHTML += '<option value="BSEd">BSEd</option>';
+        majorSelect.innerHTML += '<option value="Math">Math</option>';
+    } else if (program === 'CICS') {
+        courseSelect.innerHTML += '<option value="BSCS">BSCS</option>';
+        majorSelect.innerHTML += '<option value="Data Science">Data Science</option>';
     }
 }
 
-// Form submission handler
-document.querySelector('form').addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent form from refreshing the page
-    console.log("Form submission triggered");
+// Handle form submission
+document.querySelector('form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
 
-    // Get form data
-    const lastname = document.getElementById('lastname').value;
-    const givenname = document.getElementById('givenname').value;
-    const mi = document.getElementById('mi').value;
-    const program = document.getElementById('program').value;
-    const course = document.getElementById('course').value;
-    const major = document.getElementById('major').value;
-    const patronType = document.getElementById('patron-type').value;
-    const schoolYear = document.getElementById('school-year').value;
-    const semester = document.getElementById('semester').value;
+    // Sign in anonymously
+    firebase.auth().signInAnonymously()
+    .then(() => {
+        // Get form values
+        const lastname = document.getElementById('lastname').value;
+        const givenname = document.getElementById('givenname').value;
+        const mi = document.getElementById('mi').value;
+        const program = document.getElementById('program').value;
+        const course = document.getElementById('course').value;
+        const major = document.getElementById('major').value;
+        const patronType = document.getElementById('patron-type').value;
+        const schoolYear = document.getElementById('school-year').value;
+        const semester = document.getElementById('semester').value;
 
-    // Log form data for debugging
-    console.log("Form Data:", {
-        lastname,
-        givenname,
-        mi,
-        program,
-        course,
-        major,
-        patronType,
-        schoolYear,
-        semester
-    });
-
-    // Sign in the user anonymously
-    const user = await signInAnonymously();
-    if (!user) {
-        return; // If no user, exit early
-    }
-
-    // Create a new document ID for this user (using the UID)
-    const docId = user.uid;
-
-    // Add data to Firestore
-    try {
-        console.log("Attempting to add data to Firestore with document ID:", docId);
-        await db.collection('libraryRegistrations').doc(docId).set({
-            lastname,
-            givenname,
-            mi,
-            program,
-            course,
-            major,
-            patronType,
-            schoolYear,
-            semester,
+        // Add a new document to the "registrations" collection
+        return db.collection('registrations').add({
+            lastname: lastname,
+            givenname: givenname,
+            mi: mi,
+            program: program,
+            course: course,
+            major: major,
+            patronType: patronType,
+            schoolYear: schoolYear,
+            semester: semester,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log("Registration successful!");
-        alert("Registration successful!");
-    } catch (error) {
-        console.error("Error adding document: ", error);
-        alert("Error registering. Please try again.");
-    }
+    })
+    .then(() => {
+        alert('Registration successful!');
+        // Optionally, reset the form
+        document.querySelector('form').reset();
+    })
+    .catch((error) => {
+        console.error('Error adding document: ', error);
+        alert('There was an error submitting your registration. Please try again.');
+    });
 });
-
 </script>
 </html>
