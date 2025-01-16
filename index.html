@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="script.js" defer></script>
     <title>ZPPSU LIBRARY Registration Form</title>
 </head>
 <body>
     <div class="container">
         <div class="title">ZPPSU LIBRARY Registration Form</div>
-        <form action="#" method="post">
+        <form id="registrationForm" action="#" method="post">
             <label for="lastname">Name:</label>
             <div class="name-group">
                 <input type="text" id="lastname" name="lastname" placeholder="Lastname" required>
@@ -24,14 +25,14 @@
                 <option value="CTE">CTE</option>
                 <option value="CICS">CICS</option>
             </select>
-            
+            <label for="course">Course:</label>
             <select id="course" name="course" required>
                 <option value="">-- Select Course --</option>
             </select>
-            
+            <label for="major">Major:</label>
             <select id="major" name="major">
                 <option value="">-- Select Major --</option>
-            </select>            
+            </select>
             <label for="patron-type">Type of Patrons:</label>
             <select id="patron-type" name="patron-type" required>
                 <option value="">-- Select Patrons --</option>
@@ -54,87 +55,81 @@
             </select>
             <button type="submit" class="submit-button">Submit</button>
         </form>
-        
     </div>
-</body>
-<script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-  apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
-  authDomain: "zppsulibrary-3f15b.firebaseapp.com",
-  projectId: "zppsulibrary-3f15b",
-  storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
-  messagingSenderId: "693170608073",
-  appId: "1:693170608073:web:5a92d9c695a10bc975fa18"
-};
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    <!-- Firebase App and Firestore -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-// Function to update courses based on selected program
-function updateCourses() {
-    const program = document.getElementById('program').value;
-    const courseSelect = document.getElementById('course');
-    const majorSelect = document.getElementById('major');
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
+            authDomain: "zppsulibrary-3f15b.firebaseapp.com",
+            projectId: "zppsulibrary-3f15b",
+            storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
+            messagingSenderId: "693170608073",
+            appId: "1:693170608073:web:09d728cfb6489d7675fa18"
+        };
 
-    // Clear previous options
-    courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
-    majorSelect.innerHTML = '<option value="">-- Select Major --</option>';
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    if (program === 'CAT') {
-        courseSelect.innerHTML += '<option value="BSIT">BSIT</option>';
-        majorSelect.innerHTML += '<option value="Web Development">Web Development</option>';
-    } else if (program === 'CTE') {
-        courseSelect.innerHTML += '<option value="BSEd">BSEd</option>';
-        majorSelect.innerHTML += '<option value="Math">Math</option>';
-    } else if (program === 'CICS') {
-        courseSelect.innerHTML += '<option value="BSCS">BSCS</option>';
-        majorSelect.innerHTML += '<option value="Data Science">Data Science</option>';
-    }
-}
 
-// Handle form submission
-document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the form from submitting the traditional way
+        // Handle form submission
+        document.querySelector("#registrationForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    // Sign in anonymously
-    firebase.auth().signInAnonymously()
-    .then(() => {
-        // Get form values
-        const lastname = document.getElementById('lastname').value;
-        const givenname = document.getElementById('givenname').value;
-        const mi = document.getElementById('mi').value;
-        const program = document.getElementById('program').value;
-        const course = document.getElementById('course').value;
-        const major = document.getElementById('major').value;
-        const patronType = document.getElementById('patron-type').value;
-        const schoolYear = document.getElementById('school-year').value;
-        const semester = document.getElementById('semester').value;
+    // Collect form data
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
 
-        // Add a new document to the "registrations" collection
-        return db.collection('registrations').add({
-            lastname: lastname,
-            givenname: givenname,
-            mi: mi,
-            program: program,
-            course: course,
-            major: major,
-            patronType: patronType,
-            schoolYear: schoolYear,
-            semester: semester,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    })
-    .then(() => {
-        alert('Registration successful!');
-        // Optionally, reset the form
-        document.querySelector('form').reset();
-    })
-    .catch((error) => {
-        console.error('Error adding document: ', error);
-        alert('There was an error submitting your registration. Please try again.');
+    // Display confirmation dialog
+    const result = await Swal.fire({
+        title: "Submit Registration?",
+        text: "Make sure all details are correct.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel"
     });
+
+    if (result.isConfirmed) {
+        try {
+            // Save data to Firestore
+            await addDoc(collection(db, "registrations"), data);
+
+            // Success message
+            Swal.fire({
+                title: "Success!",
+                text: "Your registration has been submitted.",
+                icon: "success",
+                timer: 3000,
+                showConfirmButton: false
+            });
+
+            // Reset the form and dropdowns
+            event.target.reset();
+            document.getElementById("course").innerHTML = "<option value=''>-- Select Course --</option>";
+            document.getElementById("major").innerHTML = "<option value=''>-- Select Major --</option>";
+
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: `Failed to submit registration: ${error.message}`,
+                icon: "error"
+            });
+        }
+    } else {
+        Swal.fire({
+            title: "Cancelled",
+            text: "Your registration was not submitted.",
+            icon: "error"
+        });
+    }
 });
-</script>
+    </script>
+</body>
 </html>
