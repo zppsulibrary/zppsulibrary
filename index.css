@@ -4,50 +4,76 @@ body {
     font-family: 'Roboto', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
+    background-color: #800000; /* Maroon background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: url('path-to-your-logo.png'); /* Replace with your logo's path */
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.1; /* Faint logo effect */
+    width: 50%;
+    height: 50%;
+    z-index: 0;
+}
+
 .title {
     text-align: center;
     font-size: 24px;
     margin: 0;
     font-weight: bold;
-    background-color: #007bff;
+    background-color: #660000; /* Darker maroon for contrast */
     color: #fff;
     padding: 10px 0;
     width: 100%;
     position: relative;
     box-sizing: border-box;
+    z-index: 1;
 }
+
 .container {
     padding: 20px;
-    width: 100%;
-    height: calc(100vh - 60px);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: 90%; /* Adjust for smaller screens */
     max-width: 400px;
+    box-sizing: border-box;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    position: relative;
 }
+
+form {
+    width: 100%;
+}
+
 label {
     font-size: 14px;
     margin-bottom: 5px;
+    color: #333;
 }
+
 input[type="text"], select {
-    padding: 8px;
+    padding: 10px; /* Increased padding for better touch support */
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 100%;
     font-family: 'Roboto', Arial, sans-serif;
+    font-size: 16px; /* Increased font size for readability */
 }
+
 select {
     appearance: none;
     background-image: linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%);
@@ -57,26 +83,31 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+
 select option {
     font-size: 14px;
     padding: 5px;
     font-family: 'Roboto', Arial, sans-serif;
     color: #333;
 }
+
 .name-group {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap; /* Adjust layout for smaller screens */
     gap: 10px;
 }
+
 .name-group input {
     flex: 1;
 }
+
 .name-group input:nth-child(3) {
     max-width: 50px;
 }
+
 .submit-button {
-    padding: 10px;
-    background-color: #007bff;
+    padding: 12px; /* Increased padding for better touch area */
+    background-color: #660000; /* Darker maroon */
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -84,7 +115,31 @@ select option {
     font-size: 16px;
     font-family: 'Roboto', Arial, sans-serif;
     font-weight: 500;
+    width: 100%; /* Full width for mobile */
 }
+
 .submit-button:hover {
-    background-color: #0056b3;
+    background-color: #4b0000; /* Even darker maroon for hover */
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 600px) {
+    .title {
+        font-size: 20px; /* Adjusted for smaller screens */
+        padding: 8px 0;
+    }
+
+    .container {
+        padding: 15px;
+        width: 95%; /* Increased width for mobile */
+    }
+
+    input[type="text"], select {
+        font-size: 14px; /* Slightly smaller font size for mobile */
+        padding: 8px; /* Adjusted padding for better fit */
+    }
+
+    .submit-button {
+        font-size: 14px; /* Slightly smaller button text */
+    }
 }
