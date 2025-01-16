@@ -17,7 +17,6 @@
                 <input type="text" id="givenname" name="givenname" placeholder="Givenname" required>
                 <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
             </div>
-
             <label for="program">Program:</label>
             <select id="program" name="program" onchange="updateCourses()" required>
                 <option value="">-- Select Program --</option>
@@ -25,17 +24,14 @@
                 <option value="CTE">CTE</option>
                 <option value="CICS">CICS</option>
             </select>
-
             <label for="course">Course:</label>
-            <select id="course" name="course" onchange="updateMajors()" required>
+            <select id="course" name="course" required>
                 <option value="">-- Select Course --</option>
             </select>
-
             <label for="major">Major:</label>
-            <select id="major" name="major" required>
+            <select id="major" name="major">
                 <option value="">-- Select Major --</option>
             </select>
-
             <label for="patron-type">Type of Patrons:</label>
             <select id="patron-type" name="patron-type" required>
                 <option value="">-- Select Patrons --</option>
@@ -44,23 +40,21 @@
                 <option value="adviser">Adviser</option>
                 <option value="visitor">Visitor</option>
             </select>
-
             <label for="school-year">School Year:</label>
             <select id="school-year" name="school-year" required>
                 <option value="">-- Select School Year --</option>
                 <option value="2024-2025">2024-2025</option>
                 <option value="2026-2027">2026-2027</option>
             </select>
-
             <label for="semester">Semester:</label>
             <select id="semester" name="semester" required>
                 <option value="">-- Select Semester --</option>
                 <option value="1st">1st</option>
                 <option value="2nd">2nd</option>
             </select>
-
             <button type="submit" class="submit-button">Submit</button>
         </form>
+        
     </div>
 </body>
 </html>
