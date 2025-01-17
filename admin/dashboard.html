@@ -103,10 +103,6 @@
             const registrationsCollection = collection(db, "registrations");
             const snapshot = await getDocs(registrationsCollection);
 
-            // Total registrations count
-            const totalRegistrations = snapshot.size;
-            document.getElementById("total-registrations").textContent = totalRegistrations;
-
             // Display each registration detail in the table
             const tableBody = document.getElementById("registration-table-body");
             tableBody.innerHTML = ""; // Clear loading row
