@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <title>Admin Dashboard</title>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#" id="logout">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Welcome, Admin</h1>
+        </div>
+        <div class="card">
+            <h3>Registration Details</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Given Name</th>
+                        <th>Last Name</th>
+                        <th>Program</th>
+                        <th>Course</th>
+                        <th>Patron Type</th>
+                        <th>Submission Date</th>
+                    </tr>
+                </thead>
+                <tbody id="registration-table-body">
+                    <tr>
+                        <td colspan="7">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
+            authDomain: "zppsulibrary-3f15b.firebaseapp.com",
+            projectId: "zppsulibrary-3f15b",
+            storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
+            messagingSenderId: "693170608073",
+            appId: "1:693170608073:web:09d728cfb6489d7675fa18"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Check if user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            }
+        });
+
+        // Logout function
+        function logout() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You are about to log out from the dashboard!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, log me out!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    signOut(auth)
+                        .then(() => {
+                            window.location.href = "login.html";
+                        })
+                        .catch((error) => {
+                            console.error("Error logging out:", error.message);
+                        });
+                }
+            });
+        }
+
+        document.getElementById("logout").addEventListener("click", logout);
+
+        // Fetch data from Firestore
+        async function fetchRegistrations() {
+            const registrationsCollection = collection(db, "registrations");
+            const snapshot = await getDocs(registrationsCollection);
+
+            // Total registrations count
+            const totalRegistrations = snapshot.size;
+            document.getElementById("total-registrations").textContent = totalRegistrations;
+
+            // Display each registration detail in the table
+            const tableBody = document.getElementById("registration-table-body");
+            tableBody.innerHTML = ""; // Clear loading row
+
+            let index = 1; // Row numbering
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td class="table-number">${index++}</td>
+                    <td>${data.givenname || "N/A"}</td>
+                    <td>${data.lastname || "N/A"}</td>
+                    <td>${data.program || "N/A"}</td>
+                    <td>${data.course || "N/A"}</td>
+                    <td>${data["patron-type"] || "N/A"}</td>
+                    <td>${data.submissionDate || "N/A"}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Call the function to fetch data
+        fetchRegistrations().catch((error) => {
+            console.error("Error fetching registrations:", error.message);
+        });
+    </script>
+
+</body>
+</html>
