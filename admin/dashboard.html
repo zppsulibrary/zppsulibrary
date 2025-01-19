@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>Admin Dashboard</title>
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -11,13 +12,14 @@
 <body>
 
     <div class="sidebar">
+        <div class="logo">
+            <img src="../img/zppuslibrarylogo.png" alt="Logo">
+        </div>        
         <h2>Admin Dashboard</h2>
         <ul>
-            <li><a href="#">Dashboard</a></li>
-            <li><a href="#">Users</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#" id="logout">Logout</a></li>
+            <li><a href="dashboard.html" id="dashboard-link" class="active"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+            <li><a href="history.html" id="history-link"><i class="bi bi-clock-history"></i>History</a></li>
+            <li><a href="#" id="logout"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
         </ul>
     </div>
 
@@ -27,6 +29,7 @@
         </div>
         <div class="card">
             <h3>Registration Details</h3>
+            <input type="text" id="search-bar" placeholder="Search by name..." />
             <table>
                 <thead>
                     <tr>
@@ -103,6 +106,9 @@
             const registrationsCollection = collection(db, "registrations");
             const snapshot = await getDocs(registrationsCollection);
 
+            // Store registration data for filtering
+            const registrations = [];
+
             // Display each registration detail in the table
             const tableBody = document.getElementById("registration-table-body");
             tableBody.innerHTML = ""; // Clear loading row
@@ -110,8 +116,9 @@
             let index = 1; // Row numbering
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                const row = document.createElement("tr");
+                registrations.push({ id: index, ...data });
 
+                const row = document.createElement("tr");
                 row.innerHTML = `
                     <td class="table-number">${index++}</td>
                     <td>${data.givenname || "N/A"}</td>
@@ -121,8 +128,37 @@
                     <td>${data["patron-type"] || "N/A"}</td>
                     <td>${data.submissionDate || "N/A"}</td>
                 `;
-
                 tableBody.appendChild(row);
+            });
+
+            // Add search functionality
+            const searchBar = document.getElementById("search-bar");
+            searchBar.addEventListener("input", () => {
+                const searchValue = searchBar.value.toLowerCase();
+                tableBody.innerHTML = ""; // Clear current table rows
+
+                const filteredRegistrations = registrations.filter((reg) =>
+                    reg.givenname?.toLowerCase().includes(searchValue) ||
+                    reg.lastname?.toLowerCase().includes(searchValue)
+                );
+
+                if (filteredRegistrations.length > 0) {
+                    filteredRegistrations.forEach((data, idx) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td class="table-number">${idx + 1}</td>
+                            <td>${data.givenname || "N/A"}</td>
+                            <td>${data.lastname || "N/A"}</td>
+                            <td>${data.program || "N/A"}</td>
+                            <td>${data.course || "N/A"}</td>
+                            <td>${data["patron-type"] || "N/A"}</td>
+                            <td>${data.submissionDate || "N/A"}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    tableBody.innerHTML = "<tr><td colspan='7'>No results found</td></tr>";
+                }
             });
         }
 

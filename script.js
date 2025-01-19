@@ -5,18 +5,18 @@ function updateCourses() {
 
     // Mapping programs to courses
     const courses = {
-        "CAT": ["Civil Engineering"],
         "CTE": ["BEED", "BSED"],
-        "CICS": ["BSIT", "BSCS"]
+        "CICS": ["BSIT", "BSCS"],
+        "CET": ["BSCE", "BSIT"],
     };
 
     // Mapping courses to majors
     const majors = {
-        "BEED": ["Major in Math", "Major in English", "Major in Physical Education"],
-        "BSED": ["Major in Math", "Major in English", "Major in Physical Education"],
+        "BEED": [""],
+        "BSED": ["Major in Math", "Major in English"],
         "BSIT": ["Software Development", "Network Administration"],
         "BSCS": ["Artificial Intelligence", "Data Science"],
-        "Civil Engineering": [] // No majors for Civil Engineering
+        "BSIT": ["Civil Technology", "Refrigeration and Airconditioning Technology"],
     };
 
     // Reset course and major dropdowns
