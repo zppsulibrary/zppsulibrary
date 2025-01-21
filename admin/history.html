@@ -57,6 +57,10 @@
                     </tr>
                 </tbody>
             </table>
+
+            <div id="pagination" class="pagination">
+                <!-- Pagination buttons will be dynamically generated here -->
+            </div>
         </div>
     </div>
 
@@ -108,92 +112,115 @@
         }
     
         document.getElementById("logout").addEventListener("click", logout);
-    
-        // Fetch data from Firestore and sort by submissionDate
+
+        // Pagination configuration
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        let registrations = [];
+
+        // Render paginated table
+        function renderTable(page) {
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const tableBody = document.getElementById("registration-table-body");
+
+            tableBody.innerHTML = "";
+
+            const paginatedData = registrations.slice(start, end);
+
+            if (paginatedData.length > 0) {
+                paginatedData.forEach((data, idx) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="table-number">${start + idx + 1}</td>
+                        <td>${data.givenname || "N/A"}</td>
+                        <td>${data.lastname || "N/A"}</td>
+                        <td>${data.program || "N/A"}</td>
+                        <td>${data.course || "N/A"}</td>
+                        <td>${data["patron-type"] || "N/A"}</td>
+                        <td>${data.submissionDate || "N/A"}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='7'>No results found</td></tr>";
+            }
+
+            renderPagination();
+        }
+
+        // Render pagination buttons
+        function renderPagination() {
+            const totalPages = Math.ceil(registrations.length / rowsPerPage);
+            const paginationDiv = document.getElementById("pagination");
+
+            paginationDiv.innerHTML = "";
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement("button");
+                button.textContent = i;
+                button.className = i === currentPage ? "active" : "";
+                button.addEventListener("click", () => {
+                    currentPage = i;
+                    renderTable(currentPage);
+                });
+                paginationDiv.appendChild(button);
+            }
+        }
+
+        // Fetch data from Firestore
         async function fetchRegistrations() {
             const registrationsCollection = collection(db, "registrations");
             const snapshot = await getDocs(registrationsCollection);
-    
-            // Store registration data for filtering
-            const registrations = [];
-    
-            // Display each registration detail in the table
-            const tableBody = document.getElementById("registration-table-body");
-            tableBody.innerHTML = ""; // Clear loading row
-    
-            let index = 1; // Row numbering
+
+            registrations = [];
+
             snapshot.forEach((doc) => {
                 const data = doc.data();
-                registrations.push({ id: index, ...data });
-                index++;
+                registrations.push(data);
             });
-    
-            // Sort registrations by submissionDate (assuming it's a timestamp)
+
+            // Sort by submissionDate (if available)
             registrations.sort((a, b) => {
                 const dateA = new Date(a.submissionDate);
                 const dateB = new Date(b.submissionDate);
-                return dateA - dateB; // Ascending order, for descending use `dateB - dateA`
+                return dateB - dateA;
             });
-    
-            // Populate table with sorted registrations
-            registrations.forEach((data, idx) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td class="table-number">${idx + 1}</td>
-                    <td>${data.givenname || "N/A"}</td>
-                    <td>${data.lastname || "N/A"}</td>
-                    <td>${data.program || "N/A"}</td>
-                    <td>${data.course || "N/A"}</td>
-                    <td>${data["patron-type"] || "N/A"}</td>
-                    <td>${data.submissionDate || "N/A"}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-    
-            // Add search functionality
-            const searchBar = document.getElementById("search-bar");
-            const patronTypeDropdown = document.getElementById("patron-type-dropdown");
-            
-            function filterTable(patronTypeValue) {
-                const searchValue = searchBar.value.toLowerCase();
-                
-                tableBody.innerHTML = ""; // Clear current table rows
-    
-                const filteredRegistrations = registrations.filter((reg) =>
-                    (reg.givenname?.toLowerCase().includes(searchValue) || 
-                    reg.lastname?.toLowerCase().includes(searchValue)) &&
-                    (patronTypeValue === "" || reg["patron-type"]?.toLowerCase() === patronTypeValue)
-                );
-    
-                if (filteredRegistrations.length > 0) {
-                    filteredRegistrations.forEach((data, idx) => {
-                        const row = document.createElement("tr");
-                        row.innerHTML = `
-                            <td class="table-number">${idx + 1}</td>
-                            <td>${data.givenname || "N/A"}</td>
-                            <td>${data.lastname || "N/A"}</td>
-                            <td>${data.program || "N/A"}</td>
-                            <td>${data.course || "N/A"}</td>
-                            <td>${data["patron-type"] || "N/A"}</td>
-                            <td>${data.submissionDate || "N/A"}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                } else {
-                    tableBody.innerHTML = "<tr><td colspan='7'>No results found</td></tr>";
-                }
-            }
-    
-            searchBar.addEventListener("input", () => filterTable(patronTypeDropdown.value));
-    
-            patronTypeDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value));
+
+            renderTable(currentPage);
         }
-    
-        // Call the function to fetch data
+
         fetchRegistrations().catch((error) => {
-            console.error("Error fetching registrations:", error.message);
+            console.error("Error fetching registrations:", error);
         });
     </script>
+
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background-color: maroon;
+            color: white;
+        }
+
+        .pagination button:hover {
+            background-color: maroon;
+            color: white;
+        }
+    </style>
 
 </body>
 </html>
