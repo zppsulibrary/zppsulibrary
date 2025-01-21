@@ -140,10 +140,11 @@
                             submissionDate: formatDate(currentDate) // Update submission date
                         });
     
+                        // Alert for updated registration
                         Swal.fire({
-                            title: "Success!",
-                            text: "Existing registration updated successfully.",
-                            icon: "success",
+                            title: "Registration Updated",
+                            text: "This registration already exists. The scan count has been updated.",
+                            icon: "info",
                             timer: 3000,
                             showConfirmButton: false
                         });
@@ -181,7 +182,7 @@
                 });
             }
         });
-    </script>
+    </script>    
     
 </body>
 </html>
