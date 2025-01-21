@@ -8,6 +8,8 @@
     <title>Admin Dashboard</title>
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SheetJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -30,6 +32,7 @@
         <div class="card">
             <h3>Registration Details</h3>
             <input type="text" id="search-bar" placeholder="Search by name..." />
+            <button id="download-excel" class="btn">Download as Excel</button>
             <table>
                 <thead>
                     <tr>
@@ -40,11 +43,12 @@
                         <th>Course</th>
                         <th>Patron Type</th>
                         <th>Submission Date</th>
+                        <th>Scan Count</th> <!-- Added Scan Count -->
                     </tr>
                 </thead>
                 <tbody id="registration-table-body">
                     <tr>
-                        <td colspan="7">Loading...</td>
+                        <td colspan="8">Loading...</td>
                     </tr>
                 </tbody>
             </table>
@@ -53,6 +57,15 @@
         <div class="total-registered-card lower">
             <h3><i class="bi bi-people-fill"></i> Total Registered</h3>
             <p id="total-registered">Loading...</p>
+        </div>
+    </div>
+
+    <!-- View More Modal -->
+    <div id="viewMoreModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Scan Count Details</h2>
+            <p id="scan-count-details">Loading...</p>
         </div>
     </div>
 
@@ -66,7 +79,7 @@
             apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
             authDomain: "zppsulibrary-3f15b.firebaseapp.com",
             projectId: "zppsulibrary-3f15b",
-            storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
+            storageBucket: "zppsulibrary-3f15b.appspot.com",
             messagingSenderId: "693170608073",
             appId: "1:693170608073:web:09d728cfb6489d7675fa18"
         };
@@ -74,6 +87,8 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        let registrations = []; // Global variable to store fetched data
 
         // Check if user is logged in
         onAuthStateChanged(auth, (user) => {
@@ -111,8 +126,7 @@
             const registrationsCollection = collection(db, "registrations");
             const snapshot = await getDocs(registrationsCollection);
 
-            const registrations = [];
-
+            registrations = [];
             const tableBody = document.getElementById("registration-table-body");
             tableBody.innerHTML = ""; // Clear loading row
 
@@ -125,6 +139,7 @@
             const rowsPerPage = 10;
             const totalPages = Math.ceil(registrations.length / rowsPerPage);
 
+            // Render table with pagination
             function renderTable(page) {
                 tableBody.innerHTML = "";
                 const startIndex = (page - 1) * rowsPerPage;
@@ -133,7 +148,7 @@
                 for (let i = startIndex; i < endIndex; i++) {
                     const data = registrations[i];
                     const row = document.createElement("tr");
-                    row.innerHTML = `
+                    row.innerHTML = ` 
                         <td class="table-number">${i + 1}</td>
                         <td>${data.givenname || "N/A"}</td>
                         <td>${data.lastname || "N/A"}</td>
@@ -141,16 +156,18 @@
                         <td>${data.course || "N/A"}</td>
                         <td>${data["patron-type"] || "N/A"}</td>
                         <td>${data.submissionDate || "N/A"}</td>
+                        <td>${data.scanCount || "0"}</td> <!-- Added Scan Count -->
                     `;
                     tableBody.appendChild(row);
                 }
 
-                renderPagination();
+                renderPagination(currentPage);
             }
 
-            function renderPagination() {
+            // Render pagination buttons
+            function renderPagination(currentPage) {
                 const pagination = document.getElementById("pagination");
-                pagination.innerHTML = "";
+                pagination.innerHTML = ""; // Clear existing pagination
 
                 for (let i = 1; i <= totalPages; i++) {
                     const pageButton = document.createElement("button");
@@ -175,10 +192,29 @@
         fetchRegistrations().catch((error) => {
             console.error("Error fetching registrations:", error.message);
         });
-    </script>
 
+        // Download table as Excel
+        document.getElementById("download-excel").addEventListener("click", () => {
+            const tableData = registrations.map((reg, index) => ({
+                "#": index + 1,
+                "Given Name": reg.givenname || "N/A",
+                "Last Name": reg.lastname || "N/A",
+                "Program": reg.program || "N/A",
+                "Course": reg.course || "N/A",
+                "Patron Type": reg["patron-type"] || "N/A",
+                "Submission Date": reg.submissionDate || "N/A",
+                "Scan Count": reg.scanCount || "0"
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(tableData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
+
+            XLSX.writeFile(workbook, "Registrations.xlsx");
+        });
+    </script>
     <style>
-        .pagination {
+         .pagination {
             display: flex;
             justify-content: center;
             margin-top: 20px;
@@ -194,6 +230,10 @@
             background-color: maroon;
             color: white;
         }
+        .total-registered-card.lower {
+            margin-top: 30px;
+            margin-right: 30px;
+        }
         .total-registered-card {
             background-color: maroon;
             color: white;
@@ -203,17 +243,35 @@
             text-align: center;
             width: 200px;
             margin: 20px auto;
+        }
 
-        }
-        .pagination button:hover {
-            background-color: maroon;
-            color: white;
-        }   
-        .total-registered-card.lower {
-            margin-top: 30px;
-            margin-right: 30px;
-        }
+        /* Style for the Download as Excel button */
+#download-excel {
+    display: inline-block;
+    background-color: maroon; /* Green background */
+    color: white; /* White text */
+    font-size: 16px; /* Slightly larger font size */
+    font-weight: bold; /* Bold text */
+    padding: 10px 20px; /* Padding around the button */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth background color change */
+    margin-top: 10px; /* Add some spacing above */
+    text-align: center; /* Center text alignment */
+}
+
+/* Hover effect for the Download as Excel button */
+#download-excel:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Active state for the Download as Excel button */
+#download-excel:active {
+    background-color: #3e8e41; /* Even darker green when clicked */
+    transform: scale(0.98); /* Slightly shrink the button */
+}
+
     </style>
-
 </body>
 </html>

@@ -61,7 +61,7 @@
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
     
         // Firebase configuration
         const firebaseConfig = {
@@ -105,7 +105,6 @@
             // Add the current date and time to the data in desired format
             const currentDate = new Date();
             data.submissionDate = formatDate(currentDate); // Store formatted date and time
-            data.scanCount = 1;  // Initial scan count
     
             // Display confirmation dialog
             const result = await Swal.fire({
@@ -119,17 +118,48 @@
     
             if (result.isConfirmed) {
                 try {
-                    // Save data to Firestore
-                    await addDoc(collection(db, "registrations"), data);
+                    // Query Firestore to check if the user already exists
+                    const registrationsRef = collection(db, "registrations");
+                    const q = query(
+                        registrationsRef,
+                        where("lastname", "==", data.lastname),
+                        where("givenname", "==", data.givenname),
+                        where("mi", "==", data.mi)
+                    );
+                    const querySnapshot = await getDocs(q);
     
-                    // Success message
-                    Swal.fire({
-                        title: "Success!",
-                        text: "Your registration has been submitted.",
-                        icon: "success",
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
+                    if (!querySnapshot.empty) {
+                        // User already exists, increment scanCount
+                        const existingDoc = querySnapshot.docs[0];
+                        const existingData = existingDoc.data();
+                        const updatedScanCount = (existingData.scanCount || 1) + 1;
+    
+                        // Update the document in Firestore
+                        await updateDoc(doc(db, "registrations", existingDoc.id), {
+                            scanCount: updatedScanCount,
+                            submissionDate: formatDate(currentDate) // Update submission date
+                        });
+    
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Existing registration updated successfully.",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        // User does not exist, create a new document
+                        data.scanCount = 1; // Initial scan count
+                        await addDoc(registrationsRef, data);
+    
+                        Swal.fire({
+                            title: "Success!",
+                            text: "Your registration has been submitted.",
+                            icon: "success",
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
     
                     // Reset the form and dropdowns
                     event.target.reset();
@@ -151,6 +181,7 @@
                 });
             }
         });
-    </script>    
+    </script>
+    
 </body>
 </html>
