@@ -16,15 +16,14 @@ body {
 body::before {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 80%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url('path-to-your-logo.png'); /* Replace with your logo's path */
     background-repeat: no-repeat;
     background-size: contain;
-    opacity: 0.1; /* Faint logo effect */
-    width: 50%;
-    height: 50%;
+    opacity: 0.5; /* Faint logo effect */
+    width: 100%;
+    height: 100%;
     z-index: 0;
 }
 
@@ -40,7 +39,17 @@ body::before {
     position: relative;
     box-sizing: border-box;
     z-index: 1;
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Vertically center content */
+    justify-content: center; /* Horizontally center content */
+    gap: 10px; /* Add spacing between the logo and text */
 }
+
+.logo {
+    height: 15vh; /* Adjust logo size */
+    display: inline-block; /* Ensure it stays inline */
+}
+
 
 .container {
     padding: 20px;
