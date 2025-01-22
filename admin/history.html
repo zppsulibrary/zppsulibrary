@@ -55,6 +55,16 @@
                                 <option value="BSCE">BSIT</option>
                             </select>
                         </th>
+                        <th>Major
+                            <select id="major-dropdown">
+                                <option value="">All</option>
+                                <option value="beed">Major in Math</option>
+                                <option value="bsed">Major in English</option>
+                                <option value="bscs">Software Development</option>
+                                <option value="bsinfotech">Network Administration</option>
+                                <option value="BSCE">Artificial Intelligence</option>
+                            </select>
+                        </th>
                         <th>Patron Type
                             <select id="patron-type-dropdown">
                                 <option value="">All</option>
@@ -161,6 +171,7 @@ async function fetchRegistrations() {
             <td>${data.lastname || "N/A"}</td>
             <td>${data.program || "N/A"}</td>
             <td>${data.course || "N/A"}</td>
+            <td>${data.major || "N/A"}</td>
             <td>${data["patron-type"] || "N/A"}</td>
             <td>${data.submissionDate || "N/A"}</td>
             <td>${data.scanCount || "N/A"}</td>
@@ -173,8 +184,9 @@ async function fetchRegistrations() {
     const patronTypeDropdown = document.getElementById("patron-type-dropdown");
     const courseDropdown = document.getElementById("course-dropdown");
     const programDropdown = document.getElementById("program-dropdown");
+    const majorDropdown = document.getElementById("major-dropdown");
 
-    function filterTable(patronTypeValue, courseValue, programValue) {
+    function filterTable(patronTypeValue, courseValue, programValue, majorValue) {
         const searchValue = searchBar.value.toLowerCase();
 
         tableBody.innerHTML = ""; // Clear current table rows
@@ -184,7 +196,8 @@ async function fetchRegistrations() {
             reg.lastname?.toLowerCase().includes(searchValue)) &&
             (patronTypeValue === "" || reg["patron-type"]?.toLowerCase() === patronTypeValue) &&
             (courseValue === "" || reg.course?.toLowerCase() === courseValue) &&
-            (programValue === "" || reg.program?.toLowerCase() === programValue)
+            (programValue === "" || reg.program?.toLowerCase() === programValue) &&
+            (majorValue === "" || reg.program?.toLowerCase() === majorValue)
         );
 
         if (filteredRegistrations.length > 0) {
@@ -196,6 +209,7 @@ async function fetchRegistrations() {
                     <td>${data.lastname || "N/A"}</td>
                     <td>${data.program || "N/A"}</td>
                     <td>${data.course || "N/A"}</td>
+                    <td>${data.major || "N/A"}</td>
                     <td>${data["patron-type"] || "N/A"}</td>
                     <td>${data.submissionDate || "N/A"}</td>
                     <td>${data.scanCount || "N/A"}</td>
@@ -207,10 +221,11 @@ async function fetchRegistrations() {
         }
     }
 
-    searchBar.addEventListener("input", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value));
-    patronTypeDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value));
-    courseDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value));
-    programDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value));
+    searchBar.addEventListener("input", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
+    patronTypeDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
+    courseDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
+    programDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
+    majorDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
 }
 
 // Call the function to fetch data

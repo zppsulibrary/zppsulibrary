@@ -125,76 +125,88 @@
     
         // Fetch data from Firestore
         async function fetchRegistrations() {
-            const registrationsCollection = collection(db, "registrations");
-            const snapshot = await getDocs(registrationsCollection);
-    
-            registrations = [];
-            const tableBody = document.getElementById("registration-table-body");
-            tableBody.innerHTML = ""; // Clear loading row
-    
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                registrations.push(data);
-            });
-    
-            let currentPage = 1;
-            const rowsPerPage = 10;
-            const totalPages = Math.ceil(registrations.length / rowsPerPage);
-    
-            // Render table with pagination
-            function renderTable(page) {
-                tableBody.innerHTML = "";
-                const startIndex = (page - 1) * rowsPerPage;
-                const endIndex = Math.min(startIndex + rowsPerPage, registrations.length);
-    
-                for (let i = startIndex; i < endIndex; i++) {
-                    const data = registrations[i];
-                    const row = document.createElement("tr");
-                    row.innerHTML = ` 
-                        <td class="table-number">${i + 1}</td>
-                        <td>${data.givenname || "N/A"}</td>
-                        <td>${data.lastname || "N/A"}</td>
-                        <td>${data.program || "N/A"}</td>
-                        <td>${data.course || "N/A"}</td>
-                        <td>${data.major || "N/A"}</td>
-                        <td>${data.school_year || "N/A"}</td>
-                        <td>${data.semester || "N/A"}</td>
-                        <td>${data["patron-type"] || "N/A"}</td>
-                    `;
-                    tableBody.appendChild(row);
-                }
-    
-                renderPagination(currentPage);
-            }
-    
-            // Render pagination buttons
-            function renderPagination(currentPage) {
-                const pagination = document.getElementById("pagination");
-                pagination.innerHTML = ""; // Clear existing pagination
-    
-                for (let i = 1; i <= totalPages; i++) {
-                    const pageButton = document.createElement("button");
-                    pageButton.textContent = i;
-                    pageButton.className = i === currentPage ? "active" : "";
-    
-                    pageButton.addEventListener("click", () => {
-                        currentPage = i;
-                        renderTable(currentPage);
-                    });
-    
-                    pagination.appendChild(pageButton);
-                }
-            }
-    
-            renderTable(currentPage);
-    
-            // Update total registered count
-            document.getElementById("total-registered").textContent = registrations.length;
-        }
-    
-        fetchRegistrations().catch((error) => {
-            console.error("Error fetching registrations:", error.message);
+        const registrationsCollection = collection(db, "registrations");
+        const snapshot = await getDocs(registrationsCollection);
+
+        registrations = [];
+        const tableBody = document.getElementById("registration-table-body");
+        tableBody.innerHTML = ""; // Clear loading row
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            registrations.push(data);
         });
+
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        const totalPages = Math.ceil(registrations.length / rowsPerPage);
+
+        function renderTable(page, filteredData = registrations) {
+            tableBody.innerHTML = "";
+            const startIndex = (page - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const data = filteredData[i];
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="table-number">${i + 1}</td>
+                    <td>${data.givenname || "N/A"}</td>
+                    <td>${data.lastname || "N/A"}</td>
+                    <td>${data.program || "N/A"}</td>
+                    <td>${data.course || "N/A"}</td>
+                    <td>${data.major || "N/A"}</td>
+                    <td>${data.school_year || "N/A"}</td>
+                    <td>${data.semester || "N/A"}</td>
+                    <td>${data["patron-type"] || "N/A"}</td>
+                `;
+                tableBody.appendChild(row);
+            }
+
+            renderPagination(currentPage, filteredData);
+        }
+
+        function renderPagination(currentPage, filteredData = registrations) {
+            const pagination = document.getElementById("pagination");
+            pagination.innerHTML = ""; // Clear existing pagination
+
+            const filteredTotalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+            for (let i = 1; i <= filteredTotalPages; i++) {
+                const pageButton = document.createElement("button");
+                pageButton.textContent = i;
+                pageButton.className = i === currentPage ? "active" : "";
+
+                pageButton.addEventListener("click", () => {
+                    currentPage = i;
+                    renderTable(currentPage, filteredData);
+                });
+
+                pagination.appendChild(pageButton);
+            }
+        }
+
+        renderTable(currentPage);
+
+        // Update total registered count
+        document.getElementById("total-registered").textContent = registrations.length;
+
+        // Search functionality
+        const searchBar = document.getElementById("search-bar");
+        searchBar.addEventListener("input", (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredData = registrations.filter((reg) =>
+                reg.givenname?.toLowerCase().includes(searchTerm) ||
+                reg.lastname?.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1; // Reset to the first page for filtered results
+            renderTable(currentPage, filteredData);
+        });
+    }
+
+    fetchRegistrations().catch((error) => {
+        console.error("Error fetching registrations:", error.message);
+    });
     
         // Download table as Excel
         document.getElementById("download-excel").addEventListener("click", () => {
@@ -217,66 +229,66 @@
     
             XLSX.writeFile(workbook, "Registrations.xlsx");
         });
-    </script>    
-    <style>
-         .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination button {
-            margin: 0 5px;
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
-            cursor: pointer;
-        }
-        .pagination button.active {
-            background-color: maroon;
-            color: white;
-        }
-        .total-registered-card.lower {
-            margin-top: 30px;
-            margin-right: 30px;
-        }
-        .total-registered-card {
-            background-color: maroon;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 200px;
-            margin: 20px auto;
-        }
+    </script> 
+     <style>
+        .pagination {
+           display: flex;
+           justify-content: center;
+           margin-top: 20px;
+       }
+       .pagination button {
+           margin: 0 5px;
+           padding: 5px 10px;
+           border: 1px solid #ddd;
+           background-color: #f9f9f9;
+           cursor: pointer;
+       }
+       .pagination button.active {
+           background-color: maroon;
+           color: white;
+       }
+       .total-registered-card.lower {
+           margin-top: 30px;
+           margin-right: 30px;
+       }
+       .total-registered-card {
+           background-color: maroon;
+           color: white;
+           padding: 20px;
+           border-radius: 10px;
+           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+           text-align: center;
+           width: 200px;
+           margin: 20px auto;
+       }
 
-        /* Style for the Download as Excel button */
+       /* Style for the Download as Excel button */
 #download-excel {
-    display: inline-block;
-    background-color: maroon; /* Green background */
-    color: white; /* White text */
-    font-size: 16px; /* Slightly larger font size */
-    font-weight: bold; /* Bold text */
-    padding: 10px 20px; /* Padding around the button */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth background color change */
-    margin-top: 10px; /* Add some spacing above */
-    text-align: center; /* Center text alignment */
+   display: inline-block;
+   background-color: maroon; /* Green background */
+   color: white; /* White text */
+   font-size: 16px; /* Slightly larger font size */
+   font-weight: bold; /* Bold text */
+   padding: 10px 20px; /* Padding around the button */
+   border: none; /* Remove border */
+   border-radius: 5px; /* Rounded corners */
+   cursor: pointer; /* Pointer cursor on hover */
+   transition: background-color 0.3s ease; /* Smooth background color change */
+   margin-top: 10px; /* Add some spacing above */
+   text-align: center; /* Center text alignment */
 }
 
 /* Hover effect for the Download as Excel button */
 #download-excel:hover {
-    background-color: #45a049; /* Darker green on hover */
+   background-color: #45a049; /* Darker green on hover */
 }
 
 /* Active state for the Download as Excel button */
 #download-excel:active {
-    background-color: #3e8e41; /* Even darker green when clicked */
-    transform: scale(0.98); /* Slightly shrink the button */
+   background-color: #3e8e41; /* Even darker green when clicked */
+   transform: scale(0.98); /* Slightly shrink the button */
 }
 
-    </style>
+   </style>   
 </body>
 </html>
