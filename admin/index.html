@@ -37,14 +37,15 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Given Name</th>
                         <th>Last Name</th>
+                        <th>Give Name</th>
+                        <th>MI</th>
                         <th>Program</th>
                         <th>Course</th>
                         <th>Major</th>
                         <th>School Year</th>
                         <th>Semester</th>
-                        <th>Patron Type</th>
+                        <th>Type of Patron</th>
 
                     </tr>
                 </thead>
@@ -71,10 +72,9 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         
         const firebaseConfig = {
@@ -85,20 +85,20 @@
             messagingSenderId: "693170608073",
             appId: "1:693170608073:web:09d728cfb6489d7675fa18"
         };
-    
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-    
+        
         let registrations = []; // Global variable to store fetched data
-    
+        
         // Check if user is logged in
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "login.html";
             }
         });
-    
+        
         // Logout function
         function logout() {
             Swal.fire({
@@ -120,39 +120,50 @@
                 }
             });
         }
-    
+        
         document.getElementById("logout").addEventListener("click", logout);
-    
-        // Fetch data from Firestore
-        async function fetchRegistrations() {
-        const registrationsCollection = collection(db, "registrations");
-        const snapshot = await getDocs(registrationsCollection);
-
-        registrations = [];
-        const tableBody = document.getElementById("registration-table-body");
-        tableBody.innerHTML = ""; // Clear loading row
-
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            registrations.push(data);
-        });
-
-        let currentPage = 1;
-        const rowsPerPage = 10;
-        const totalPages = Math.ceil(registrations.length / rowsPerPage);
-
+        
+        // Fetch and listen for real-time updates from Firestore
+        function fetchRegistrations() {
+            const registrationsCollection = collection(db, "registrations");
+        
+            // Listen for changes in the 'registrations' collection in real-time
+            onSnapshot(registrationsCollection, (snapshot) => {
+                registrations = [];
+                const tableBody = document.getElementById("registration-table-body");
+                tableBody.innerHTML = ""; // Clear existing table rows
+        
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    registrations.push(data);
+                });
+        
+                let currentPage = 1;
+                const rowsPerPage = 10;
+                const totalPages = Math.ceil(registrations.length / rowsPerPage);
+        
+                // Render the table
+                renderTable(currentPage);
+        
+                // Update total registered count
+                document.getElementById("total-registered").textContent = registrations.length;
+            });
+        }
+        
         function renderTable(page, filteredData = registrations) {
+            const tableBody = document.getElementById("registration-table-body");
             tableBody.innerHTML = "";
-            const startIndex = (page - 1) * rowsPerPage;
-            const endIndex = Math.min(startIndex + rowsPerPage, filteredData.length);
-
+            const startIndex = (page - 1) * 10;
+            const endIndex = Math.min(startIndex + 10, filteredData.length);
+        
             for (let i = startIndex; i < endIndex; i++) {
                 const data = filteredData[i];
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td class="table-number">${i + 1}</td>
-                    <td>${data.givenname || "N/A"}</td>
                     <td>${data.lastname || "N/A"}</td>
+                    <td>${data.givenname || "N/A"}</td>
+                    <td>${data.mi || "N/A"}</td>
                     <td>${data.program || "N/A"}</td>
                     <td>${data.course || "N/A"}</td>
                     <td>${data.major || "N/A"}</td>
@@ -162,35 +173,30 @@
                 `;
                 tableBody.appendChild(row);
             }
-
-            renderPagination(currentPage, filteredData);
+        
+            renderPagination(page, filteredData);
         }
-
+        
         function renderPagination(currentPage, filteredData = registrations) {
             const pagination = document.getElementById("pagination");
             pagination.innerHTML = ""; // Clear existing pagination
-
-            const filteredTotalPages = Math.ceil(filteredData.length / rowsPerPage);
-
+        
+            const filteredTotalPages = Math.ceil(filteredData.length / 10);
+        
             for (let i = 1; i <= filteredTotalPages; i++) {
                 const pageButton = document.createElement("button");
                 pageButton.textContent = i;
                 pageButton.className = i === currentPage ? "active" : "";
-
+        
                 pageButton.addEventListener("click", () => {
                     currentPage = i;
                     renderTable(currentPage, filteredData);
                 });
-
+        
                 pagination.appendChild(pageButton);
             }
         }
-
-        renderTable(currentPage);
-
-        // Update total registered count
-        document.getElementById("total-registered").textContent = registrations.length;
-
+        
         // Search functionality
         const searchBar = document.getElementById("search-bar");
         searchBar.addEventListener("input", (e) => {
@@ -199,37 +205,34 @@
                 reg.givenname?.toLowerCase().includes(searchTerm) ||
                 reg.lastname?.toLowerCase().includes(searchTerm)
             );
-            currentPage = 1; // Reset to the first page for filtered results
-            renderTable(currentPage, filteredData);
+            renderTable(1, filteredData);
         });
-    }
-
-    fetchRegistrations().catch((error) => {
-        console.error("Error fetching registrations:", error.message);
-    });
-    
+        
         // Download table as Excel
         document.getElementById("download-excel").addEventListener("click", () => {
             const tableData = registrations.map((reg, index) => ({
                 "#": index + 1,
-                "Given Name": reg.givenname || "N/A",
                 "Last Name": reg.lastname || "N/A",
+                "Given Name": reg.givenname || "N/A",
+                "MI": reg.mi || "N/A",
                 "Program": reg.program || "N/A",
                 "Course": reg.course || "N/A",
                 "Major": reg.major || "N/A",
                 "School Year": reg.school_year || "N/A",
-                "semester": reg.semester || "N/A",
+                "Semester": reg.semester || "N/A",
                 "Patron Type": reg["patron-type"] || "N/A",
-               
             }));
-    
+        
             const worksheet = XLSX.utils.json_to_sheet(tableData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
-    
+        
             XLSX.writeFile(workbook, "Registrations.xlsx");
         });
-    </script> 
+        
+        fetchRegistrations();
+    </script>
+    
      <style>
         .pagination {
            display: flex;

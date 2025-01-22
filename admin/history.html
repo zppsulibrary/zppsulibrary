@@ -35,8 +35,9 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Given Name</th>
                         <th>Last Name</th>
+                        <th>Give Name</th>
+                        <th>MI</th>
                         <th>Program
                             <select id="program-dropdown">
                                 <option value="">All</option>
@@ -65,7 +66,7 @@
                                 <option value="BSCE">Artificial Intelligence</option>
                             </select>
                         </th>
-                        <th>Patron Type
+                        <th>Type of Patron
                             <select id="patron-type-dropdown">
                                 <option value="">All</option>
                                 <option value="student">Student</option>
@@ -84,14 +85,18 @@
                     </tr>
                 </tbody>
             </table>
+
+            <!-- Pagination controls -->
+            <div id="pagination-container"></div>
+
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, orderBy, startAfter, limit, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        
+    
         const firebaseConfig = {
             apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
             authDomain: "zppsulibrary-3f15b.firebaseapp.com",
@@ -136,103 +141,150 @@
     
         document.getElementById("logout").addEventListener("click", logout);
     
-      // Fetch data from Firestore and sort by submissionDate
-async function fetchRegistrations() {
-    const registrationsCollection = collection(db, "registrations");
-    const snapshot = await getDocs(registrationsCollection);
-
-    // Store registration data for filtering
-    const registrations = [];
-
-    // Display each registration detail in the table
-    const tableBody = document.getElementById("registration-table-body");
-    tableBody.innerHTML = ""; // Clear loading row
-
-    let index = 1; // Row numbering
-    snapshot.forEach((doc) => {
-        const data = doc.data();
-        registrations.push({ id: index, ...data });
-        index++;
-    });
-
-    // Sort registrations by submissionDate (assuming it's a timestamp)
-    registrations.sort((a, b) => {
-        const dateA = new Date(a.submissionDate);
-        const dateB = new Date(b.submissionDate);
-        return dateA - dateB; // Ascending order, for descending use `dateB - dateA`
-    });
-
-    // Populate table with sorted registrations
-    registrations.forEach((data, idx) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td class="table-number">${idx + 1}</td>
-            <td>${data.givenname || "N/A"}</td>
-            <td>${data.lastname || "N/A"}</td>
-            <td>${data.program || "N/A"}</td>
-            <td>${data.course || "N/A"}</td>
-            <td>${data.major || "N/A"}</td>
-            <td>${data["patron-type"] || "N/A"}</td>
-            <td>${data.submissionDate || "N/A"}</td>
-            <td>${data.scanCount || "N/A"}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-
-    // Add search and filter functionality
-    const searchBar = document.getElementById("search-bar");
-    const patronTypeDropdown = document.getElementById("patron-type-dropdown");
-    const courseDropdown = document.getElementById("course-dropdown");
-    const programDropdown = document.getElementById("program-dropdown");
-    const majorDropdown = document.getElementById("major-dropdown");
-
-    function filterTable(patronTypeValue, courseValue, programValue, majorValue) {
-        const searchValue = searchBar.value.toLowerCase();
-
-        tableBody.innerHTML = ""; // Clear current table rows
-
-        const filteredRegistrations = registrations.filter((reg) =>
-            (reg.givenname?.toLowerCase().includes(searchValue) || 
-            reg.lastname?.toLowerCase().includes(searchValue)) &&
-            (patronTypeValue === "" || reg["patron-type"]?.toLowerCase() === patronTypeValue) &&
-            (courseValue === "" || reg.course?.toLowerCase() === courseValue) &&
-            (programValue === "" || reg.program?.toLowerCase() === programValue) &&
-            (majorValue === "" || reg.program?.toLowerCase() === majorValue)
-        );
-
-        if (filteredRegistrations.length > 0) {
-            filteredRegistrations.forEach((data, idx) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td class="table-number">${idx + 1}</td>
-                    <td>${data.givenname || "N/A"}</td>
-                    <td>${data.lastname || "N/A"}</td>
-                    <td>${data.program || "N/A"}</td>
-                    <td>${data.course || "N/A"}</td>
-                    <td>${data.major || "N/A"}</td>
-                    <td>${data["patron-type"] || "N/A"}</td>
-                    <td>${data.submissionDate || "N/A"}</td>
-                    <td>${data.scanCount || "N/A"}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        } else {
-            tableBody.innerHTML = "<tr><td colspan='7'>No results found</td></tr>";
+        // Fetch total number of documents and calculate total pages
+        let lastVisible = null; // Keep track of the last document
+        const pageSize = 10; // Number of records per page
+        let totalPages = 0; // Total number of pages
+    
+        // Function to get total count and set up pagination
+        async function getTotalPages() {
+            const registrationsCollection = collection(db, "registrations");
+            const snapshot = await getDocs(registrationsCollection);
+            const totalRecords = snapshot.size;
+            totalPages = Math.ceil(totalRecords / pageSize); // Calculate total pages
+            generatePagination(); // Generate pagination buttons
+            fetchRegistrations(1); // Fetch the first page
         }
-    }
-
-    searchBar.addEventListener("input", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
-    patronTypeDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
-    courseDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
-    programDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
-    majorDropdown.addEventListener("change", () => filterTable(patronTypeDropdown.value, courseDropdown.value, programDropdown.value, majorDropdown.value));
+    
+        // Function to generate pagination buttons dynamically
+        function generatePagination() {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = ''; // Clear existing buttons
+    
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.classList.add('page-btn');
+                
+                // Add an event listener to fetch data for the selected page
+                pageButton.addEventListener('click', () => {
+                    fetchRegistrations(i); // Fetch records for the selected page
+                    updatePagination(i); // Update active pagination button
+                });
+    
+                paginationContainer.appendChild(pageButton);
+            }
+        }
+    
+        // Function to update pagination button state (disable current page)
+        function updatePagination(currentPage) {
+            const pageButtons = document.querySelectorAll('.page-btn');
+            pageButtons.forEach((btn, index) => {
+                if (index + 1 === currentPage) {
+                    btn.disabled = true; // Disable current page button
+                } else {
+                    btn.disabled = false; // Enable other page buttons
+                }
+            });
+        }
+    
+        // Fetch registrations for the specified page
+        async function fetchRegistrations(page) {
+            const registrationsCollection = collection(db, "registrations");
+            const tableBody = document.getElementById("registration-table-body");
+    
+            // Display loading message initially
+            tableBody.innerHTML = "<tr><td colspan='9'>Loading...</td></tr>";
+    
+            // Query for the specified page of records
+            const pageQuery = query(
+                registrationsCollection,
+                orderBy("submissionDate"),
+                limit(pageSize),
+                startAfter(lastVisible || 0)
+            );
+    
+            onSnapshot(pageQuery, (snapshot) => {
+                const registrations = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    registrations.push(data);
+                });
+    
+                // Update last visible document for pagination
+                lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    
+                // Clear loading message and populate table with fetched data
+                tableBody.innerHTML = ''; // Clear loading row
+                registrations.forEach((data, idx) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="table-number">${(page - 1) * pageSize + idx + 1}</td>
+                        <td>${data.lastname || "N/A"}</td>
+                        <td>${data.givenname || "N/A"}</td>
+                        <td>${data.mi || "N/A"}</td>
+                        <td>${data.program || "N/A"}</td>
+                        <td>${data.course || "N/A"}</td>
+                        <td>${data.major || "N/A"}</td>
+                        <td>${data["patron-type"] || "N/A"}</td>
+                        <td>${data.submissionDate || "N/A"}</td>
+                        <td>${data.scanCount || "N/A"}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+    
+                updatePagination(page); // Update active state of pagination
+            });
+        }
+    
+        // Initial data fetch and pagination setup
+        getTotalPages();
+    </script>
+    <style>
+        /* Pagination container */
+#pagination-container {
+    text-align: center;
+    margin-top: 20px;
 }
 
-// Call the function to fetch data
-fetchRegistrations().catch((error) => {
-    console.error("Error fetching registrations:", error.message);
-});
-    </script>
+/* Pagination button styles */
+.page-btn {
+    padding: 8px 16px;
+    margin: 0 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    background-color: maroon;  /* Changed background color to maroon */
+    color: white;              /* Text color changed to white for contrast */
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 
+/* Hover effect for pagination buttons */
+.page-btn:hover {
+    background-color: #800000;  /* Darker shade of maroon on hover */
+    color: white;
+}
+
+/* Active (current) page button styles */
+.page-btn:disabled {
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Adding focus effect when a button is selected */
+.page-btn:focus {
+    outline: none;
+    border-color: #800000;  /* Darker maroon for focus state */
+}
+
+/* Optional: Add a page number range above the buttons */
+.pagination-range {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+    </style>    
 </body>
 </html>
