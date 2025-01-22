@@ -65,6 +65,7 @@
                             </select>
                         </th>
                         <th>Submission Date</th>
+                        <th>Scan Count</th>
                     </tr>
                 </thead>
                 <tbody id="registration-table-body">
@@ -162,6 +163,7 @@ async function fetchRegistrations() {
             <td>${data.course || "N/A"}</td>
             <td>${data["patron-type"] || "N/A"}</td>
             <td>${data.submissionDate || "N/A"}</td>
+            <td>${data.scanCount || "N/A"}</td>
         `;
         tableBody.appendChild(row);
     });
@@ -196,6 +198,7 @@ async function fetchRegistrations() {
                     <td>${data.course || "N/A"}</td>
                     <td>${data["patron-type"] || "N/A"}</td>
                     <td>${data.submissionDate || "N/A"}</td>
+                    <td>${data.scanCount || "N/A"}</td>
                 `;
                 tableBody.appendChild(row);
             });

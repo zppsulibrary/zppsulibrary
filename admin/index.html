@@ -41,9 +41,11 @@
                         <th>Last Name</th>
                         <th>Program</th>
                         <th>Course</th>
+                        <th>Major</th>
+                        <th>School Year</th>
+                        <th>Semester</th>
                         <th>Patron Type</th>
-                        <th>Submission Date</th>
-                        <th>Scan Count</th> <!-- Added Scan Count -->
+
                     </tr>
                 </thead>
                 <tbody id="registration-table-body">
@@ -83,20 +85,20 @@
             messagingSenderId: "693170608073",
             appId: "1:693170608073:web:09d728cfb6489d7675fa18"
         };
-
+    
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
+    
         let registrations = []; // Global variable to store fetched data
-
+    
         // Check if user is logged in
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "login.html";
             }
         });
-
+    
         // Logout function
         function logout() {
             Swal.fire({
@@ -118,33 +120,33 @@
                 }
             });
         }
-
+    
         document.getElementById("logout").addEventListener("click", logout);
-
+    
         // Fetch data from Firestore
         async function fetchRegistrations() {
             const registrationsCollection = collection(db, "registrations");
             const snapshot = await getDocs(registrationsCollection);
-
+    
             registrations = [];
             const tableBody = document.getElementById("registration-table-body");
             tableBody.innerHTML = ""; // Clear loading row
-
+    
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 registrations.push(data);
             });
-
+    
             let currentPage = 1;
             const rowsPerPage = 10;
             const totalPages = Math.ceil(registrations.length / rowsPerPage);
-
+    
             // Render table with pagination
             function renderTable(page) {
                 tableBody.innerHTML = "";
                 const startIndex = (page - 1) * rowsPerPage;
                 const endIndex = Math.min(startIndex + rowsPerPage, registrations.length);
-
+    
                 for (let i = startIndex; i < endIndex; i++) {
                     const data = registrations[i];
                     const row = document.createElement("tr");
@@ -154,45 +156,46 @@
                         <td>${data.lastname || "N/A"}</td>
                         <td>${data.program || "N/A"}</td>
                         <td>${data.course || "N/A"}</td>
+                        <td>${data.major || "N/A"}</td>
+                        <td>${data.school_year || "N/A"}</td>
+                        <td>${data.semester || "N/A"}</td>
                         <td>${data["patron-type"] || "N/A"}</td>
-                        <td>${data.submissionDate || "N/A"}</td>
-                        <td>${data.scanCount || "0"}</td> <!-- Added Scan Count -->
                     `;
                     tableBody.appendChild(row);
                 }
-
+    
                 renderPagination(currentPage);
             }
-
+    
             // Render pagination buttons
             function renderPagination(currentPage) {
                 const pagination = document.getElementById("pagination");
                 pagination.innerHTML = ""; // Clear existing pagination
-
+    
                 for (let i = 1; i <= totalPages; i++) {
                     const pageButton = document.createElement("button");
                     pageButton.textContent = i;
                     pageButton.className = i === currentPage ? "active" : "";
-
+    
                     pageButton.addEventListener("click", () => {
                         currentPage = i;
                         renderTable(currentPage);
                     });
-
+    
                     pagination.appendChild(pageButton);
                 }
             }
-
+    
             renderTable(currentPage);
-
+    
             // Update total registered count
             document.getElementById("total-registered").textContent = registrations.length;
         }
-
+    
         fetchRegistrations().catch((error) => {
             console.error("Error fetching registrations:", error.message);
         });
-
+    
         // Download table as Excel
         document.getElementById("download-excel").addEventListener("click", () => {
             const tableData = registrations.map((reg, index) => ({
@@ -201,18 +204,20 @@
                 "Last Name": reg.lastname || "N/A",
                 "Program": reg.program || "N/A",
                 "Course": reg.course || "N/A",
+                "Major": reg.major || "N/A",
+                "School Year": reg.school_year || "N/A",
+                "semester": reg.semester || "N/A",
                 "Patron Type": reg["patron-type"] || "N/A",
-                "Submission Date": reg.submissionDate || "N/A",
-                "Scan Count": reg.scanCount || "0"
+               
             }));
-
+    
             const worksheet = XLSX.utils.json_to_sheet(tableData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
-
+    
             XLSX.writeFile(workbook, "Registrations.xlsx");
         });
-    </script>
+    </script>    
     <style>
          .pagination {
             display: flex;
