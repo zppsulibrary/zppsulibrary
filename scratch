@@ -1,0 +1,46 @@
+<style>
+        /* Pagination container */
+#pagination-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Pagination button styles */
+.page-btn {
+    padding: 8px 16px;
+    margin: 0 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    background-color: maroon;  /* Changed background color to maroon */
+    color: white;              /* Text color changed to white for contrast */
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect for pagination buttons */
+.page-btn:hover {
+    background-color: #800000;  /* Darker shade of maroon on hover */
+    color: white;
+}
+
+/* Active (current) page button styles */
+.page-btn:disabled {
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Adding focus effect when a button is selected */
+.page-btn:focus {
+    outline: none;
+    border-color: #800000;  /* Darker maroon for focus state */
+}
+
+/* Optional: Add a page number range above the buttons */
+.pagination-range {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+    </style>    

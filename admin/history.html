@@ -71,7 +71,7 @@
                                 <option value="">All</option>
                                 <option value="student">Student</option>
                                 <option value="faculty">Faculty</option>
-                                <option value="adviser">Adviser</option>
+                                <option value="adviser">Admin</option>
                                 <option value="visitor">Visitor</option>
                             </select>
                         </th>
@@ -138,7 +138,81 @@
                 }
             });
         }
-    
+
+        // Add event listeners to dropdowns for filtering
+const filters = {
+    program: "",
+    course: "",
+    major: "",
+    patronType: ""
+};
+
+document.getElementById("program-dropdown").addEventListener("change", (event) => {
+    filters.program = event.target.value.toLowerCase();
+    filterTable();
+});
+
+document.getElementById("course-dropdown").addEventListener("change", (event) => {
+    filters.course = event.target.value.toLowerCase();
+    filterTable();
+});
+
+document.getElementById("major-dropdown").addEventListener("change", (event) => {
+    filters.major = event.target.value.toLowerCase();
+    filterTable();
+});
+
+document.getElementById("patron-type-dropdown").addEventListener("change", (event) => {
+    filters.patronType = event.target.value.toLowerCase();
+    filterTable();
+});
+
+// Function to filter the table rows
+function filterTable() {
+    const tableBody = document.getElementById("registration-table-body");
+    const rows = tableBody.getElementsByTagName("tr");
+
+    Array.from(rows).forEach((row) => {
+        const cells = row.getElementsByTagName("td");
+        if (cells.length > 1) {
+            const program = cells[4].textContent.toLowerCase();
+            const course = cells[5].textContent.toLowerCase();
+            const major = cells[6].textContent.toLowerCase();
+            const patronType = cells[7].textContent.toLowerCase();
+
+            const isMatch =
+                (filters.program === "" || program.includes(filters.program)) &&
+                (filters.course === "" || course.includes(filters.course)) &&
+                (filters.major === "" || major.includes(filters.major)) &&
+                (filters.patronType === "" || patronType.includes(filters.patronType));
+
+            row.style.display = isMatch ? "" : "none";
+        }
+    });
+}
+
+        
+        // Search functionality for filtering table rows by name
+document.getElementById("search-bar").addEventListener("input", (event) => {
+    const searchValue = event.target.value.toLowerCase();
+    const tableBody = document.getElementById("registration-table-body");
+    const rows = tableBody.getElementsByTagName("tr");
+
+    Array.from(rows).forEach((row) => {
+        const cells = row.getElementsByTagName("td");
+        if (cells.length > 1) {
+            const lastName = cells[1].textContent.toLowerCase();
+            const givenName = cells[2].textContent.toLowerCase();
+
+            if (lastName.includes(searchValue) || givenName.includes(searchValue)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
+    });
+});
+
         document.getElementById("logout").addEventListener("click", logout);
     
         // Fetch total number of documents and calculate total pages
@@ -240,15 +314,15 @@
         // Initial data fetch and pagination setup
         getTotalPages();
     </script>
-    <style>
-        /* Pagination container */
-#pagination-container {
+   <style>
+    /* Pagination container */
+    #pagination-container {
     text-align: center;
     margin-top: 20px;
-}
-
-/* Pagination button styles */
-.page-btn {
+    }
+    
+    /* Pagination button styles */
+    .page-btn {
     padding: 8px 16px;
     margin: 0 5px;
     font-size: 16px;
@@ -258,33 +332,33 @@
     color: white;              /* Text color changed to white for contrast */
     border-radius: 5px;
     transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Hover effect for pagination buttons */
-.page-btn:hover {
+    }
+    
+    /* Hover effect for pagination buttons */
+    .page-btn:hover {
     background-color: #800000;  /* Darker shade of maroon on hover */
     color: white;
-}
-
-/* Active (current) page button styles */
-.page-btn:disabled {
+    }
+    
+    /* Active (current) page button styles */
+    .page-btn:disabled {
     background-color: #ddd;
     color: #aaa;
     cursor: not-allowed;
-}
-
-/* Adding focus effect when a button is selected */
-.page-btn:focus {
+    }
+    
+    /* Adding focus effect when a button is selected */
+    .page-btn:focus {
     outline: none;
     border-color: #800000;  /* Darker maroon for focus state */
-}
-
-/* Optional: Add a page number range above the buttons */
-.pagination-range {
+    }
+    
+    /* Optional: Add a page number range above the buttons */
+    .pagination-range {
     font-size: 16px;
     margin-bottom: 10px;
-}
-
+    }
+    
     </style>    
 </body>
 </html>
