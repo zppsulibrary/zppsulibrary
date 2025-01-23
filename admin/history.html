@@ -29,7 +29,7 @@
         </div>
         <div class="card">
             <h3>History Details</h3>
-            <input type="text" id="search-bar" placeholder="Search by name..." />
+            <input type="text" id="search-bar" autocomplete="off" placeholder="Search by name..." />
             
             <table>
                 <thead>
@@ -39,41 +39,12 @@
                         <th>Give Name</th>
                         <th>MI</th>
                         <th>Program
-                            <select id="program-dropdown">
-                                <option value="">All</option>
-                                <option value="cte">CTE</option>
-                                <option value="cics">CICS</option>
-                                <option value="cet">CET</option>
-                            </select>
                         </th>                        
                         <th>Course
-                            <select id="course-dropdown">
-                                <option value="">All</option>
-                                <option value="beed">BEED</option>
-                                <option value="bsed">BSED</option>
-                                <option value="bscs">BSCS</option>
-                                <option value="bsinfotech">BSInfoTech</option>
-                                <option value="BSCE">BSIT</option>
-                            </select>
                         </th>
                         <th>Major
-                            <select id="major-dropdown">
-                                <option value="">All</option>
-                                <option value="beed">Major in Math</option>
-                                <option value="bsed">Major in English</option>
-                                <option value="bscs">Civil Technology</option>
-                                <option value="bsinfotech">Network Administration</option>
-                                <option value="BSCE">Artificial Intelligence</option>
-                            </select>
                         </th>
                         <th>Type of Patron
-                            <select id="patron-type-dropdown">
-                                <option value="">All</option>
-                                <option value="student">Student</option>
-                                <option value="faculty">Faculty</option>
-                                <option value="adviser">Admin</option>
-                                <option value="visitor">Visitor</option>
-                            </select>
                         </th>
                         <th>Submission Date</th>
                         <th>Scan Count</th>
@@ -139,226 +110,7 @@
             });
         }
 
-        // Add event listeners to dropdowns for filtering
-const filters = {
-    program: "",
-    course: "",
-    major: "",
-    patronType: ""
-};
-
-document.getElementById("program-dropdown").addEventListener("change", (event) => {
-    filters.program = event.target.value.toLowerCase();
-    filterTable();
-});
-
-document.getElementById("course-dropdown").addEventListener("change", (event) => {
-    filters.course = event.target.value.toLowerCase();
-    filterTable();
-});
-
-document.getElementById("major-dropdown").addEventListener("change", (event) => {
-    filters.major = event.target.value.toLowerCase();
-    filterTable();
-});
-
-document.getElementById("patron-type-dropdown").addEventListener("change", (event) => {
-    filters.patronType = event.target.value.toLowerCase();
-    filterTable();
-});
-
-// Function to filter the table rows
-function filterTable() {
-    const tableBody = document.getElementById("registration-table-body");
-    const rows = tableBody.getElementsByTagName("tr");
-
-    Array.from(rows).forEach((row) => {
-        const cells = row.getElementsByTagName("td");
-        if (cells.length > 1) {
-            const program = cells[4].textContent.toLowerCase();
-            const course = cells[5].textContent.toLowerCase();
-            const major = cells[6].textContent.toLowerCase();
-            const patronType = cells[7].textContent.toLowerCase();
-
-            const isMatch =
-                (filters.program === "" || program.includes(filters.program)) &&
-                (filters.course === "" || course.includes(filters.course)) &&
-                (filters.major === "" || major.includes(filters.major)) &&
-                (filters.patronType === "" || patronType.includes(filters.patronType));
-
-            row.style.display = isMatch ? "" : "none";
-        }
-    });
-}
-
-        
-        // Search functionality for filtering table rows by name
-document.getElementById("search-bar").addEventListener("input", (event) => {
-    const searchValue = event.target.value.toLowerCase();
-    const tableBody = document.getElementById("registration-table-body");
-    const rows = tableBody.getElementsByTagName("tr");
-
-    Array.from(rows).forEach((row) => {
-        const cells = row.getElementsByTagName("td");
-        if (cells.length > 1) {
-            const lastName = cells[1].textContent.toLowerCase();
-            const givenName = cells[2].textContent.toLowerCase();
-
-            if (lastName.includes(searchValue) || givenName.includes(searchValue)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        }
-    });
-});
-
-        document.getElementById("logout").addEventListener("click", logout);
-    
-        // Fetch total number of documents and calculate total pages
-        let lastVisible = null; // Keep track of the last document
-        const pageSize = 10; // Number of records per page
-        let totalPages = 0; // Total number of pages
-    
-        // Function to get total count and set up pagination
-        async function getTotalPages() {
-            const registrationsCollection = collection(db, "registrations");
-            const snapshot = await getDocs(registrationsCollection);
-            const totalRecords = snapshot.size;
-            totalPages = Math.ceil(totalRecords / pageSize); // Calculate total pages
-            generatePagination(); // Generate pagination buttons
-            fetchRegistrations(1); // Fetch the first page
-        }
-    
-        // Function to generate pagination buttons dynamically
-        function generatePagination() {
-            const paginationContainer = document.getElementById('pagination-container');
-            paginationContainer.innerHTML = ''; // Clear existing buttons
-    
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.textContent = i;
-                pageButton.classList.add('page-btn');
-                
-                // Add an event listener to fetch data for the selected page
-                pageButton.addEventListener('click', () => {
-                    fetchRegistrations(i); // Fetch records for the selected page
-                    updatePagination(i); // Update active pagination button
-                });
-    
-                paginationContainer.appendChild(pageButton);
-            }
-        }
-    
-        // Function to update pagination button state (disable current page)
-        function updatePagination(currentPage) {
-            const pageButtons = document.querySelectorAll('.page-btn');
-            pageButtons.forEach((btn, index) => {
-                if (index + 1 === currentPage) {
-                    btn.disabled = true; // Disable current page button
-                } else {
-                    btn.disabled = false; // Enable other page buttons
-                }
-            });
-        }
-    
-        // Fetch registrations for the specified page
-        async function fetchRegistrations(page) {
-            const registrationsCollection = collection(db, "registrations");
-            const tableBody = document.getElementById("registration-table-body");
-    
-            // Display loading message initially
-            tableBody.innerHTML = "<tr><td colspan='9'>Loading...</td></tr>";
-    
-            // Query for the specified page of records
-            const pageQuery = query(
-                registrationsCollection,
-                orderBy("submissionDate"),
-                limit(pageSize),
-                startAfter(lastVisible || 0)
-            );
-    
-            onSnapshot(pageQuery, (snapshot) => {
-                const registrations = [];
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    registrations.push(data);
-                });
-    
-                // Update last visible document for pagination
-                lastVisible = snapshot.docs[snapshot.docs.length - 1];
-    
-                // Clear loading message and populate table with fetched data
-                tableBody.innerHTML = ''; // Clear loading row
-                registrations.forEach((data, idx) => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td class="table-number">${(page - 1) * pageSize + idx + 1}</td>
-                        <td>${data.lastname || "N/A"}</td>
-                        <td>${data.givenname || "N/A"}</td>
-                        <td>${data.mi || "N/A"}</td>
-                        <td>${data.program || "N/A"}</td>
-                        <td>${data.course || "N/A"}</td>
-                        <td>${data.major || "N/A"}</td>
-                        <td>${data["patron-type"] || "N/A"}</td>
-                        <td>${data.submissionDate || "N/A"}</td>
-                        <td>${data.scanCount || "N/A"}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-    
-                updatePagination(page); // Update active state of pagination
-            });
-        }
-    
-        // Initial data fetch and pagination setup
-        getTotalPages();
+       
     </script>
-   <style>
-    /* Pagination container */
-    #pagination-container {
-    text-align: center;
-    margin-top: 20px;
-    }
-    
-    /* Pagination button styles */
-    .page-btn {
-    padding: 8px 16px;
-    margin: 0 5px;
-    font-size: 16px;
-    cursor: pointer;
-    border: 1px solid #ddd;
-    background-color: maroon;  /* Changed background color to maroon */
-    color: white;              /* Text color changed to white for contrast */
-    border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    
-    /* Hover effect for pagination buttons */
-    .page-btn:hover {
-    background-color: #800000;  /* Darker shade of maroon on hover */
-    color: white;
-    }
-    
-    /* Active (current) page button styles */
-    .page-btn:disabled {
-    background-color: #ddd;
-    color: #aaa;
-    cursor: not-allowed;
-    }
-    
-    /* Adding focus effect when a button is selected */
-    .page-btn:focus {
-    outline: none;
-    border-color: #800000;  /* Darker maroon for focus state */
-    }
-    
-    /* Optional: Add a page number range above the buttons */
-    .pagination-range {
-    font-size: 16px;
-    margin-bottom: 10px;
-    }
-    
-    </style>    
 </body>
 </html>

@@ -8,6 +8,7 @@ function updateCourses() {
         "CTE": ["BEED", "BSED"],
         "CICS": ["BSIT", "BSCS"],
         "CET": ["BSCE", "BSIT"],
+        "CAHSS": ["BSDEVCOM", "BATSIFIL","BSF"],
     };
 
     // Mapping courses to majors
@@ -16,7 +17,8 @@ function updateCourses() {
         "BSED": ["Major in Math", "Major in English"],
         "BSIT": ["Software Development", "Network Administration"],
         "BSCS": ["Artificial Intelligence", "Data Science"],
-        "BSIT": ["Civil Technology", "Refrigeration and Airconditioning Technology"],
+        "BSCE": ["Civil Technology", "Refrigeration and Airconditioning Technology"],
+        "BSF": ["Industrial Design"],
     };
 
     // Reset course and major dropdowns

@@ -20,9 +20,18 @@
         <h2>Admin Dashboard</h2>
         <ul>
             <li><a href="index.html" id="dashboard-link" class="active"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
-            <li><a href="history.html" id="history-link"><i class="bi bi-clock-history"></i>History</a></li>
+            <li id="history-link-container">
+                <a href="#" id="history-link"><i class="bi bi-clock-history"></i>History</a>
+                <ul id="history-dropdown" class="dropdown">
+                    <li><a href="studentreg.html">Student Registrations</a></li>
+                    <li><a href="facultyreg.html">Faculty Registrations</a></li>
+                    <li><a href="admin_registrations.html">Admin Registrations</a></li>
+                    <li><a href="visitor_registrations.html">Visitor Registrations</a></li>
+                </ul>
+            </li>
             <li><a href="#" id="logout"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
         </ul>
+        
     </div>
 
     <div class="main-content">
@@ -30,48 +39,176 @@
             <h1>Welcome, Admin</h1>
         </div>
         <div class="card">
-            <h3>Registration Details</h3>
-            <input type="text" id="search-bar" placeholder="Search by name..." />
-            <button id="download-excel" class="btn">Download as Excel</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Last Name</th>
-                        <th>Give Name</th>
-                        <th>MI</th>
-                        <th>Program</th>
-                        <th>Course</th>
-                        <th>Major</th>
-                        <th>School Year</th>
-                        <th>Semester</th>
-                        <th>Type of Patron</th>
-
-                    </tr>
-                </thead>
-                <tbody id="registration-table-body">
-                    <tr>
-                        <td colspan="8">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div id="pagination" class="pagination"></div>
+            <h3>Student Registration Details</h3>
+            <input type="text" id="search-student-bar" placeholder="Search by name..." />
+            <button class="toggle-btn" onclick="toggleCard('student-card')">👁️</button>
+            <div id="student-card">
+                <table id="student-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Last Name</th>
+                            <th>Given Name</th>
+                            <th>MI</th>
+                            <th>Program</th>
+                            <th>Course</th>
+                            <th>Major</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
+                            <th>Type of Patron</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-table-body">
+                        <tr>
+                            <td colspan="10">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="total-registered-card lower">
-            <h3><i class="bi bi-people-fill"></i> Total Registered</h3>
-            <p id="total-registered">Loading...</p>
+        
+        <div class="card">
+            <h3>Faculty Registration Details</h3>
+            <input type="text" id="search-faculty-bar" placeholder="Search by name..." />
+            <button class="toggle-btn" onclick="toggleCard('faculty-card')">👁️</button>
+            <div id="faculty-card">
+                <table id="faculty-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Last Name</th>
+                            <th>Given Name</th>
+                            <th>MI</th>
+                            <th>Program</th>
+                        </tr>
+                    </thead>
+                    <tbody id="faculty-table-body">
+                        <tr>
+                            <td colspan="5">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-
-    <!-- View More Modal -->
-    <div id="viewMoreModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Scan Count Details</h2>
-            <p id="scan-count-details">Loading...</p>
+        
+        <div class="card">
+            <h3>Admin Registration Details</h3>
+            <input type="text" id="search-admin-bar" placeholder="Search by name..." />
+            <button class="toggle-btn" onclick="toggleCard('admin-card')">👁️</button>
+            <div id="admin-card">
+                <table id="admin-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Last Name</th>
+                            <th>Given Name</th>
+                            <th>MI</th>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <tr>
+                            <td colspan="5">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+        
+        <div class="card">
+            <h3>Visitor Registration Details</h3>
+            <input type="text" id="search-visitor-bar" placeholder="Search by name..." />
+            <button class="toggle-btn" onclick="toggleCard('visitor-card')">👁️</button>
+            <div id="visitor-card">
+                <table id="visitor-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Last Name</th>
+                            <th>Given Name</th>
+                            <th>MI</th>
+                            <th>School Field</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitor-table-body">
+                        <tr>
+                            <td colspan="5">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <script>
+            function toggleCard(cardId) {
+                const card = document.getElementById(cardId);
+                const toggleButton = event.target;
+        
+                // Toggle visibility of the whole card
+                if (card.style.display === "none") {
+                    card.style.display = "block";
+                    toggleButton.textContent = "👁️";  // Show eye icon when card is visible
+                } else {
+                    card.style.display = "none";
+                    toggleButton.textContent = "👁️‍🗨️";  // Show eye with a slash when card is hidden
+                }
+            }
 
+            document.getElementById("history-link").addEventListener("click", function(event) {
+    event.preventDefault();  // Prevents the default action of the link
+    const dropdown = document.getElementById("history-dropdown");
+    // Toggle the display style between "block" (visible) and "none" (hidden)
+    if (dropdown.style.display === "none" || dropdown.style.display === "") {
+        dropdown.style.display = "block";
+    } else {
+        dropdown.style.display = "none";
+    }
+});
+
+        </script>
+        
+        <style>
+            .toggle-btn {
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                position: absolute;
+                right: 10px;
+            }
+        
+            .card {
+                position: relative;
+                padding-right: 40px;
+            }
+        
+            .card div {
+                display: block;  /* Show content by default */
+            }
+            /* Style for the search bar */
+input[type="text"] {
+    width: 90vh;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensure padding doesn't affect the width */
+    transition: border-color 0.3s ease;
+}
+
+/* Add focus effect */
+input[type="text"]:focus {
+    border-color: #007bff; /* Change border color on focus */
+    outline: none; /* Remove default focus outline */
+}
+
+/* Style for the placeholder text */
+input[type="text"]::placeholder {
+    color: #888;
+    font-style: italic;
+}
+        </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
@@ -123,175 +260,143 @@
         
         document.getElementById("logout").addEventListener("click", logout);
         
-        // Fetch and listen for real-time updates from Firestore
-        function fetchRegistrations() {
-            const registrationsCollection = collection(db, "registrations");
-        
-            // Listen for changes in the 'registrations' collection in real-time
-            onSnapshot(registrationsCollection, (snapshot) => {
-                registrations = [];
-                const tableBody = document.getElementById("registration-table-body");
-                tableBody.innerHTML = ""; // Clear existing table rows
-        
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    registrations.push(data);
-                });
-        
-                let currentPage = 1;
-                const rowsPerPage = 10;
-                const totalPages = Math.ceil(registrations.length / rowsPerPage);
-        
-                // Render the table
-                renderTable(currentPage);
-        
-                // Update total registered count
-                document.getElementById("total-registered").textContent = registrations.length;
-            });
-        }
-        
-        function renderTable(page, filteredData = registrations) {
-            const tableBody = document.getElementById("registration-table-body");
-            tableBody.innerHTML = "";
-            const startIndex = (page - 1) * 10;
-            const endIndex = Math.min(startIndex + 10, filteredData.length);
-        
-            for (let i = startIndex; i < endIndex; i++) {
-                const data = filteredData[i];
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td class="table-number">${i + 1}</td>
-                    <td>${data.lastname || "N/A"}</td>
-                    <td>${data.givenname || "N/A"}</td>
-                    <td>${data.mi || "N/A"}</td>
-                    <td>${data.program || "N/A"}</td>
-                    <td>${data.course || "N/A"}</td>
-                    <td>${data.major || "N/A"}</td>
-                    <td>${data.school_year || "N/A"}</td>
-                    <td>${data.semester || "N/A"}</td>
-                    <td>${data["patron-type"] || "N/A"}</td>
-                `;
-                tableBody.appendChild(row);
-            }
-        
-            renderPagination(page, filteredData);
-        }
-        
-        function renderPagination(currentPage, filteredData = registrations) {
-            const pagination = document.getElementById("pagination");
-            pagination.innerHTML = ""; // Clear existing pagination
-        
-            const filteredTotalPages = Math.ceil(filteredData.length / 10);
-        
-            for (let i = 1; i <= filteredTotalPages; i++) {
-                const pageButton = document.createElement("button");
-                pageButton.textContent = i;
-                pageButton.className = i === currentPage ? "active" : "";
-        
-                pageButton.addEventListener("click", () => {
-                    currentPage = i;
-                    renderTable(currentPage, filteredData);
-                });
-        
-                pagination.appendChild(pageButton);
-            }
-        }
-        
-        // Search functionality
-        const searchBar = document.getElementById("search-bar");
-        searchBar.addEventListener("input", (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredData = registrations.filter((reg) =>
-                reg.givenname?.toLowerCase().includes(searchTerm) ||
-                reg.lastname?.toLowerCase().includes(searchTerm)
-            );
-            renderTable(1, filteredData);
+       // Fetch and listen for real-time updates from Firestore
+function fetchRegistrations() {
+    const registrationsCollection = collection(db, "registrations");
+
+    // Listen for changes in the 'registrations' collection in real-time
+    onSnapshot(registrationsCollection, (snapshot) => {
+        registrations = [];
+        const studentTableBody = document.getElementById("student-table-body");
+        const facultyTableBody = document.getElementById("faculty-table-body");
+        const adminTableBody = document.getElementById("admin-table-body");
+        const visitorTableBody = document.getElementById("visitor-table-body");
+
+        // Clear existing table rows
+        studentTableBody.innerHTML = "<tr><td colspan='10'>Loading...</td></tr>";
+        facultyTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+        adminTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+        visitorTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            registrations.push(data);
         });
-        
-        // Download table as Excel
-        document.getElementById("download-excel").addEventListener("click", () => {
-            const tableData = registrations.map((reg, index) => ({
-                "#": index + 1,
-                "Last Name": reg.lastname || "N/A",
-                "Given Name": reg.givenname || "N/A",
-                "MI": reg.mi || "N/A",
-                "Program": reg.program || "N/A",
-                "Course": reg.course || "N/A",
-                "Major": reg.major || "N/A",
-                "School Year": reg.school_year || "N/A",
-                "Semester": reg.semester || "N/A",
-                "Patron Type": reg["patron-type"] || "N/A",
-            }));
-        
-            const worksheet = XLSX.utils.json_to_sheet(tableData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
-        
-            XLSX.writeFile(workbook, "Registrations.xlsx");
-        });
-        
-        fetchRegistrations();
+
+        let studentData = registrations.filter(reg => reg["patron-type"] === "Student");
+        let facultyData = registrations.filter(reg => reg["patron-type"] === "Faculty");
+        let adminData = registrations.filter(reg => reg["patron-type"] === "Admin");
+        let visitorData = registrations.filter(reg => reg["patron-type"] === "Visitor");
+
+        // Render each table
+        renderTable("student", studentData);
+        renderTable("faculty", facultyData);
+        renderTable("admin", adminData);
+        renderTable("visitor", visitorData);
+    });
+}
+
+// Render the tables based on patron type
+function renderTable(type, data) {
+    const tableBody = document.getElementById(`${type}-table-body`);
+    tableBody.innerHTML = "";
+
+    // Reverse the data so the newest entries come first
+    const reversedData = data.reverse();
+
+    reversedData.forEach((item, index) => {
+        let row;
+        if (type === "student") {
+            row = `
+                <td>${index + 1}</td>
+                <td>${item.lastname || "N/A"}</td>
+                <td>${item.givenname || "N/A"}</td>
+                <td>${item.mi || "N/A"}</td>
+                <td>${item.program || "N/A"}</td>
+                <td>${item.course || "N/A"}</td>
+                <td>${item.major || "N/A"}</td>
+                <td>${item.school_year || "N/A"}</td>
+                <td>${item.semester || "N/A"}</td>
+                <td>${item["patron-type"] || "N/A"}</td>
+            `;
+        } else if (type === "faculty") {
+            row = `
+                <td>${index + 1}</td>
+                <td>${item.lastname || "N/A"}</td>
+                <td>${item.givenname || "N/A"}</td>
+                <td>${item.mi || "N/A"}</td>
+                <td>${item.program || "N/A"}</td>
+            `;
+        } else if (type === "admin") {
+            row = `
+                <td>${index + 1}</td>
+                <td>${item.lastname || "N/A"}</td>
+                <td>${item.givenname || "N/A"}</td>
+                <td>${item.mi || "N/A"}</td>
+                <td>${item.department || "N/A"}</td>
+            `;
+        } else if (type === "visitor") {
+            row = `
+                <td>${index + 1}</td>
+                <td>${item.lastname || "N/A"}</td>
+                <td>${item.givenname || "N/A"}</td>
+                <td>${item.mi || "N/A"}</td>
+                <td>${item.school || "N/A"}</td>
+            `;
+        }
+
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = row;
+        tableBody.appendChild(newRow);
+    });
+}
+
+
+// Search functionality for each table
+document.getElementById("search-student-bar").addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredData = registrations.filter((reg) =>
+        reg["patron-type"] === "Student" &&
+        (reg.givenname?.toLowerCase().includes(searchTerm) ||
+         reg.lastname?.toLowerCase().includes(searchTerm))
+    );
+    renderTable("student", filteredData);
+});
+
+document.getElementById("search-faculty-bar").addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredData = registrations.filter((reg) =>
+        reg["patron-type"] === "Faculty" &&
+        (reg.givenname?.toLowerCase().includes(searchTerm) ||
+         reg.lastname?.toLowerCase().includes(searchTerm))
+    );
+    renderTable("faculty", filteredData);
+});
+
+document.getElementById("search-admin-bar").addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredData = registrations.filter((reg) =>
+        reg["patron-type"] === "Admin" &&
+        (reg.givenname?.toLowerCase().includes(searchTerm) ||
+         reg.lastname?.toLowerCase().includes(searchTerm))
+    );
+    renderTable("admin", filteredData);
+});
+
+document.getElementById("search-visitor-bar").addEventListener("input", (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredData = registrations.filter((reg) =>
+        reg["patron-type"] === "Visitor" &&
+        (reg.givenname?.toLowerCase().includes(searchTerm) ||
+         reg.lastname?.toLowerCase().includes(searchTerm))
+    );
+    renderTable("visitor", filteredData);
+});
+
+fetchRegistrations();
+
     </script>
-    
-     <style>
-        .pagination {
-           display: flex;
-           justify-content: center;
-           margin-top: 20px;
-       }
-       .pagination button {
-           margin: 0 5px;
-           padding: 5px 10px;
-           border: 1px solid #ddd;
-           background-color: #f9f9f9;
-           cursor: pointer;
-       }
-       .pagination button.active {
-           background-color: maroon;
-           color: white;
-       }
-       .total-registered-card.lower {
-           margin-top: 30px;
-           margin-right: 30px;
-       }
-       .total-registered-card {
-           background-color: maroon;
-           color: white;
-           padding: 20px;
-           border-radius: 10px;
-           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-           text-align: center;
-           width: 200px;
-           margin: 20px auto;
-       }
 
-       /* Style for the Download as Excel button */
-#download-excel {
-   display: inline-block;
-   background-color: maroon; /* Green background */
-   color: white; /* White text */
-   font-size: 16px; /* Slightly larger font size */
-   font-weight: bold; /* Bold text */
-   padding: 10px 20px; /* Padding around the button */
-   border: none; /* Remove border */
-   border-radius: 5px; /* Rounded corners */
-   cursor: pointer; /* Pointer cursor on hover */
-   transition: background-color 0.3s ease; /* Smooth background color change */
-   margin-top: 10px; /* Add some spacing above */
-   text-align: center; /* Center text alignment */
-}
 
-/* Hover effect for the Download as Excel button */
-#download-excel:hover {
-   background-color: #45a049; /* Darker green on hover */
-}
-
-/* Active state for the Download as Excel button */
-#download-excel:active {
-   background-color: #3e8e41; /* Even darker green when clicked */
-   transform: scale(0.98); /* Slightly shrink the button */
-}
-
-   </style>   
 </body>
 </html>

@@ -15,6 +15,14 @@
             ZPPSU LIBRARY Registration Form
         </div>
         <form id="registrationForm" action="#" method="post">
+            <label for="patron-type">Type of Patrons:</label>
+            <select id="patron-type" name="patron-type">
+                <option value="">-- Select Patrons --</option>
+                <option value="Student">Student</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Admin">Admin</option>
+                <option value="Visitor">Visitor</option>
+            </select>
             <label for="lastname">Name:</label>
             <div class="name-group">
                 <input type="text" id="lastname" name="lastname" placeholder="Lastname" required>
@@ -22,36 +30,29 @@
                 <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
             </div>
             <label for="program">Program:</label>
-            <select id="program" name="program" onchange="updateCourses()" required>
+            <select id="program" name="program" onchange="updateCourses()">
                 <option value="">-- Select Program --</option>
                 <option value="CTE">CTE</option>
                 <option value="CICS">CICS</option>
                 <option value="CET">CET</option>
+                <option value="CAHSS">CAHSS</option>
             </select>
             <label for="course">Course:</label>
-            <select id="course" name="course" required>
+            <select id="course" name="course">
                 <option value="">-- Select Course --</option>
             </select>
             <label for="major">Major:</label>
             <select id="major" name="major">
                 <option value="">-- Select Major --</option>
             </select>
-            <label for="patron-type">Type of Patrons:</label>
-            <select id="patron-type" name="patron-type" required>
-                <option value="">-- Select Patrons --</option>
-                <option value="Student">Student</option>
-                <option value="Faculty">Faculty</option>
-                <option value="Admin">Admin</option>
-                <option value="Visitor">Visitor</option>
-            </select>
             <label for="school_year">School Year:</label>
-            <select id="school_year" name="school_year" required>
+            <select id="school_year" name="school_year">
                 <option value="">-- Select School Year --</option>
                 <option value="2024-2025">2024-2025</option>
                 <option value="2026-2027">2026-2027</option>
             </select>
             <label for="semester">Semester:</label>
-            <select id="semester" name="semester" required>
+            <select id="semester" name="semester">
                 <option value="">-- Select Semester --</option>
                 <option value="1st">1st</option>
                 <option value="2nd">2nd</option>
@@ -60,7 +61,6 @@
         </form>
     </div>
 
-    <!-- Firebase App and Firestore -->
     <script type="module">
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
@@ -79,81 +79,164 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-    
-        // Function to format the date in DD/MM/YY 12-hour format with AM/PM
-        function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = String(date.getFullYear()).slice(-2);
+        
+        // Function to update form visibility based on patron type
+        function updateFormFields() {
+            const patronType = document.getElementById("patron-type").value;
             
-            let hours = date.getHours();
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-    
-            // Convert to 12-hour format
-            hours = hours % 12;
-            hours = hours ? String(hours).padStart(2, '0') : '12';  // The hour '0' should be '12'
-    
+            const courseLabel = document.querySelector("label[for='course']");
+            const majorLabel = document.querySelector("label[for='major']");
+            const schoolYearLabel = document.querySelector("label[for='school_year']");
+            const semesterLabel = document.querySelector("label[for='semester']");
+            const programLabel = document.querySelector("label[for='program']");
+            
+            const courseField = document.getElementById("course");
+            const majorField = document.getElementById("major");
+            const schoolYearField = document.getElementById("school_year");
+            const semesterField = document.getElementById("semester");
+            const programField = document.getElementById("program");
+
+            const form = document.querySelector("form");
+            const submitButton = document.querySelector(".submit-button");
+
+            // Remove dynamic fields if they exist
+            const dynamicFields = form.querySelectorAll("label[for='department'], #department, label[for='school'], #school, #other-school");
+            dynamicFields.forEach(field => field.remove());
+
+            if (patronType === "Faculty") {
+                courseLabel.style.display = "none";
+                majorLabel.style.display = "none";
+                schoolYearLabel.style.display = "none";
+                semesterLabel.style.display = "none";
+                courseField.style.display = "none";
+                majorField.style.display = "none";
+                schoolYearField.style.display = "none";
+                semesterField.style.display = "none";
+                programLabel.style.display = "block";
+                programField.style.display = "block";
+            } else if (patronType === "Admin") {
+                [courseLabel, majorLabel, schoolYearLabel, semesterLabel, programLabel].forEach(label => label.style.display = "none");
+                [courseField, majorField, schoolYearField, semesterField, programField].forEach(field => field.style.display = "none");
+
+                const departmentLabel = document.createElement("label");
+                departmentLabel.setAttribute("for", "department");
+                departmentLabel.textContent = "Department:";
+
+                const departmentField = document.createElement("select");
+                departmentField.id = "department";
+                departmentField.name = "department";
+                departmentField.innerHTML = `
+                    <option value="">-- Select Department --</option>
+                    <option value="Registrar">Registrar</option>
+                    <option value="Clinic">Clinic</option>
+                `;
+
+                form.insertBefore(departmentLabel, submitButton);
+                form.insertBefore(departmentField, submitButton);
+            } else if (patronType === "Visitor") {
+                [courseLabel, majorLabel, schoolYearLabel, semesterLabel, programLabel].forEach(label => label.style.display = "none");
+                [courseField, majorField, schoolYearField, semesterField, programField].forEach(field => field.style.display = "none");
+
+                const schoolLabel = document.createElement("label");
+                schoolLabel.setAttribute("for", "school");
+                schoolLabel.textContent = "School:";
+
+                const schoolField = document.createElement("select");
+                schoolField.id = "school";
+                schoolField.name = "school";
+                schoolField.innerHTML = `
+                    <option value="">-- Select School --</option>
+                    <option value="UZ">UZ</option>
+                    <option value="WMSU">WMSU</option>
+                    <option value="BRENT">BRENT</option>
+                    <option value="Others">Others</option>
+                `;
+
+                schoolField.addEventListener("change", function () {
+                    const otherSchoolInput = form.querySelector("#other-school");
+                    if (this.value === "Others" && !otherSchoolInput) {
+                        const otherSchoolLabel = document.createElement("label");
+                        otherSchoolLabel.setAttribute("for", "other-school");
+                        otherSchoolLabel.textContent = "Specify school:";
+
+                        const input = document.createElement("input");
+                        input.id = "other-school";
+                        input.name = "otherSchool";
+                        input.type = "text";
+
+                        form.insertBefore(otherSchoolLabel, submitButton);
+                        form.insertBefore(input, submitButton);
+                    } else if (otherSchoolInput) {
+                        otherSchoolInput.previousSibling.remove();
+                        otherSchoolInput.remove();
+                    }
+                });
+
+                form.insertBefore(schoolLabel, submitButton);
+                form.insertBefore(schoolField, submitButton);
+            } else {
+                [courseLabel, majorLabel, schoolYearLabel, semesterLabel, programLabel].forEach(label => label.style.display = "block");
+                [courseField, majorField, schoolYearField, semesterField, programField].forEach(field => field.style.display = "block");
+            }
+        }
+
+        document.getElementById("patron-type").addEventListener("change", updateFormFields);
+        window.onload = updateFormFields;
+
+        async function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    data.submissionDate = formatDate(new Date());
+    data.scanCount = 1;
+
+    // Check if school field exists and add its value to the data object
+    const schoolField = document.getElementById("school");
+    if (schoolField) {
+        data.school = schoolField.value;
+    }
+
+    // Check if other-school field exists and add its value to the data object
+    const otherSchoolField = document.getElementById("other-school");
+    if (otherSchoolField && otherSchoolField.value) {
+        // Capture what the user has entered in the "Other School" input field
+        data.school = otherSchoolField.value; // Send the input value, not the label
+    }
+
+    const result = await Swal.fire({
+        title: "Submit Registration?",
+        text: "Make sure all details are correct.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await addDoc(collection(db, "registrations"), data);
+            Swal.fire("Success!", "Your registration has been submitted.", "success");
+            event.target.reset();
+        } catch (error) {
+            Swal.fire("Error", `Failed to submit registration: ${error.message}`, "error");
+        }
+    } else {
+        Swal.fire("Cancelled", "Your registration was not submitted.", "error");
+    }
+}
+
+
+        document.querySelector("#registrationForm").addEventListener("submit", handleSubmit);
+
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const year = String(date.getFullYear()).slice(-2);
+            let hours = date.getHours() % 12 || 12;
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            const ampm = date.getHours() >= 12 ? "PM" : "AM";
             return `${day}/${month}/${year} ${hours}:${minutes} ${ampm}`;
         }
-    
-        // Handle form submission
-        document.querySelector("#registrationForm").addEventListener("submit", async (event) => {
-            event.preventDefault();
-    
-            // Collect form data
-            const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData.entries());
-    
-            // Add the current date and time to the data in desired format
-            const currentDate = new Date();
-            data.submissionDate = formatDate(currentDate); // Store formatted date and time
-            data.scanCount = 1;  // Initial scan count
-    
-            // Display confirmation dialog
-            const result = await Swal.fire({
-                title: "Submit Registration?",
-                text: "Make sure all details are correct.",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Submit",
-                cancelButtonText: "Cancel"
-            });
-    
-            if (result.isConfirmed) {
-                try {
-                    // Save data to Firestore
-                    await addDoc(collection(db, "registrations"), data);
-    
-                    // Success message
-                    Swal.fire({
-                        title: "Success!",
-                        text: "Your registration has been submitted.",
-                        icon: "success",
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-    
-                    // Reset the form and dropdowns
-                    event.target.reset();
-                    document.getElementById("course").innerHTML = "<option value=''>-- Select Course --</option>";
-                    document.getElementById("major").innerHTML = "<option value=''>-- Select Major --</option>";
-    
-                } catch (error) {
-                    Swal.fire({
-                        title: "Error",
-                        text: `Failed to submit registration: ${error.message}`,
-                        icon: "error"
-                    });
-                }
-            } else {
-                Swal.fire({
-                    title: "Cancelled",
-                    text: "Your registration was not submitted.",
-                    icon: "error"
-                });
-            }
-        });
-    </script>    
+    </script>
 </body>
 </html>
