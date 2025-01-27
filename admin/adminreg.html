@@ -158,6 +158,12 @@ input[type="text"]::placeholder {
         tableBody.innerHTML = ""; // Clear previous table data
 
         data.forEach((facultyMember, index) => {
+            // Combine submissionDate and submissionDates
+            const submissionDetails = `
+                ${facultyMember.submissionDate || "N/A"}<br>
+                ${facultyMember.submissionDates ? facultyMember.submissionDates.join("<br>") : ""}
+            `.trim();
+
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${index + 1}</td>
@@ -166,7 +172,7 @@ input[type="text"]::placeholder {
                 <td>${facultyMember.mi || "N/A"}</td>
                 <td>${facultyMember.department || "N/A"}</td>
                 <td>${facultyMember["patron-type"] || "N/A"}</td>
-                <td>${facultyMember.submissionDate || "N/A"}</td>
+                <td>${submissionDetails}</td>
                 <td>${facultyMember.scanCount || "N/A"}</td>
             `;
             tableBody.appendChild(row);
@@ -214,6 +220,7 @@ input[type="text"]::placeholder {
 
     document.getElementById("logout").addEventListener("click", logout);
 </script>
+
 
 
 </body>

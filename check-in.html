@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>ZPPSU LIBRARY Registration Form</title>
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <img src="img/zppuslibrarylogo.png" alt="ZPPSU Library Logo" class="logo">
+            ZPPSU LIBRARY Registration Form
+        </div>
+        <form id="registrationForm" action="#" method="post">
+            <label for="patron-type">Type of Patrons:</label>
+            <select id="patron-type" name="patron-type">
+                <option value="">-- Select Patrons --</option>
+                <option value="Student">Student</option>
+                <option value="Faculty">Faculty</option>
+                <option value="Admin">Admin</option>
+                <option value="Visitor">Visitor</option>
+            </select>
+            <label for="lastname">Name:</label>
+            <div class="name-group">
+                <input type="text" id="lastname" name="lastname" placeholder="Lastname" required>
+                <input type="text" id="givenname" name="givenname" placeholder="Givenname" required>
+                <input type="text" id="mi" name="mi" placeholder="MI" maxlength="1" required>
+            </div>
+            <div class="button-group">
+                <button type="button" class="search-button" id="searchButton">Search</button>
+            </div>
+            <div id="checkinContainer" style="display: none; margin-top: 20px;">
+                <button type="button" class="submit-button" id="checkinButton">Check-In</button>
+            </div>
+        </form>
+    </div>
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            updateDoc,
+            doc,
+            increment,
+            arrayUnion,
+        } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
+            authDomain: "zppsulibrary-3f15b.firebaseapp.com",
+            projectId: "zppsulibrary-3f15b",
+            storageBucket: "zppsulibrary-3f15b.firebasestorage.app",
+            messagingSenderId: "693170608073",
+            appId: "1:693170608073:web:09d728cfb6489d7675fa18",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let foundDocId = null; // Store document ID globally
+
+        // Search Button Logic
+        document.getElementById("searchButton").addEventListener("click", async () => {
+            const lastname = document.getElementById("lastname").value.trim();
+            const givenname = document.getElementById("givenname").value.trim();
+            const mi = document.getElementById("mi").value.trim();
+            const patronType = document.getElementById("patron-type").value;
+
+            if (!lastname || !givenname || !mi || !patronType) {
+                Swal.fire("Error", "Please fill in all fields before searching!", "error");
+                return;
+            }
+
+            try {
+                // Firestore query in the 'registrations' directory
+                const registrationsRef = collection(db, "registrations");
+                const q = query(
+                    registrationsRef,
+                    where("lastname", "==", lastname),
+                    where("givenname", "==", givenname),
+                    where("mi", "==", mi),
+                    where("patron-type", "==", patronType)
+                );
+
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    querySnapshot.forEach((doc) => {
+                        foundDocId = doc.id; // Store the document ID
+                    });
+                    Swal.fire("Success", "Record found! You can now Check-In.", "success");
+
+                    // Show Check-In button
+                    document.getElementById("checkinContainer").style.display = "block";
+                } else {
+                    Swal.fire("No Record", "No matching record found in the database.", "info");
+                    document.getElementById("checkinContainer").style.display = "none";
+                }
+            } catch (error) {
+                console.error("Error searching Firestore: ", error);
+                Swal.fire("Error", "An error occurred while searching. Check console for details.", "error");
+            }
+        });
+
+        // Check-In Button Logic
+        document.getElementById("checkinButton").addEventListener("click", async () => {
+            if (!foundDocId) {
+                Swal.fire("Error", "No record selected for check-in.", "error");
+                return;
+            }
+
+            try {
+                // Firestore document reference
+                const docRef = doc(db, "registrations", foundDocId);
+
+                // Get current timestamp
+                const now = new Date();
+                const submissionDate = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
+
+                // Update Firestore fields
+                await updateDoc(docRef, {
+                    scanCount: increment(1), // Increment scanCount
+                    submissionDates: arrayUnion(submissionDate), // Add submissionDate to array
+                });
+
+                Swal.fire("Success", "Check-In successful! Your record has been updated.", "success");
+
+                // Hide the Check-In button
+                document.getElementById("checkinContainer").style.display = "none";
+            } catch (error) {
+                console.error("Error during check-in:", error);
+                Swal.fire("Error", "An error occurred while checking in. Check console for details.", "error");
+            }
+        });
+    </script>
+    <style>
+         /* Search Button Styling */
+         .search-button {
+            background-color: maroon;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        .search-button:hover {
+            background-color: goldenrod;
+        }
+
+        .search-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</body>
+</html>

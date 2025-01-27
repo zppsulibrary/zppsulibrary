@@ -160,14 +160,20 @@ input[type="text"]::placeholder {
         populateTable(studentData); // Initially populate the table with all data
     });
 
-    // Function to populate the table with data
-    function populateTable(data) {
-        const tableBody = document.getElementById("student-table-body");
-        tableBody.innerHTML = ""; // Clear previous table data
+// Function to populate the table with data
+function populateTable(data) {
+    const tableBody = document.getElementById("student-table-body");
+    tableBody.innerHTML = ""; // Clear previous table data
 
-        data.forEach((student, index) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
+    data.forEach((student, index) => {
+        // Combine submissionDate and submissionDates
+        const submissionDetails = `
+            ${student.submissionDate || "N/A"}<br>
+            ${student.submissionDates ? student.submissionDates.join("<br>") : ""}
+        `.trim(); // Display submissionDate followed by all submissionDates
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
             <td>${index + 1}</td>
             <td>${student.lastname || "N/A"}</td>
             <td>${student.givenname || "N/A"}</td>
@@ -178,12 +184,13 @@ input[type="text"]::placeholder {
             <td>${student.school_year || "N/A"}</td>
             <td>${student.semester || "N/A"}</td>
             <td>${student["patron-type"] || "N/A"}</td>
-            <td>${student.submissionDate || "N/A"}</td>
+            <td>${submissionDetails}</td>
             <td>${student.scanCount || "N/A"}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
 
     // Search function
     document.getElementById("search-student-bar").addEventListener("input", function(event) {

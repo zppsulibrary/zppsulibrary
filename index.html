@@ -65,6 +65,7 @@
         // Import Firebase functions
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
     
         // Firebase configuration
         const firebaseConfig = {
@@ -199,10 +200,36 @@
     // Check if other-school field exists and add its value to the data object
     const otherSchoolField = document.getElementById("other-school");
     if (otherSchoolField && otherSchoolField.value) {
-        // Capture what the user has entered in the "Other School" input field
-        data.school = otherSchoolField.value; // Send the input value, not the label
+        data.school = otherSchoolField.value; // Capture what the user has entered
     }
 
+    // Create a query to check if the combination of lastname, givenname, and mi already exists
+    const querySnapshot = await getDocs(
+        query(
+            collection(db, "registrations"),
+            where("lastname", "==", data.lastname),
+            where("givenname", "==", data.givenname),
+            where("mi", "==", data.mi)
+        )
+    );
+
+    if (!querySnapshot.empty) {
+    Swal.fire({
+        title: "Duplicate Entry",
+        text: "A registration with this name already exists. Do you want to proceed to check-in?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Proceed",
+        cancelButtonText: "Cancel",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "check-in.html"; // Redirect to check-in page
+        }
+    });
+    return; // Stop further submission processing
+}
+
+    // Proceed with confirmation and submission
     const result = await Swal.fire({
         title: "Submit Registration?",
         text: "Make sure all details are correct.",
@@ -214,6 +241,7 @@
 
     if (result.isConfirmed) {
         try {
+            // Add the document to Firestore
             await addDoc(collection(db, "registrations"), data);
             Swal.fire("Success!", "Your registration has been submitted.", "success");
             event.target.reset();

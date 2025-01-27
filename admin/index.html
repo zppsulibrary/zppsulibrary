@@ -31,7 +31,6 @@
             </li>
             <li><a href="#" id="logout"><i class="bi bi-box-arrow-right"></i>Logout</a></li>
         </ul>
-        
     </div>
 
     <div class="main-content">
@@ -39,11 +38,26 @@
             <h1>Welcome, Admin</h1>
         </div>
         <div class="card">
-            <h3>Student Registration Details</h3>
-            <input type="text" id="search-student-bar" placeholder="Search by name..." />
-            <button class="toggle-btn" onclick="toggleCard('student-card')">👁️</button>
-            <div id="student-card">
-                <table id="student-table">
+            <h3>Registrations</h3>
+
+            <!-- Filter Dropdown -->
+            <div class="filter-container">
+                <select id="registration-type" class="filter-select">
+                    <option value="student">Student Registrations</option>
+                    <option value="faculty">Faculty Registrations</option>
+                    <option value="admin">Admin Registrations</option>
+                    <option value="visitor">Visitor Registrations</option>
+                </select>
+                <button id="filter-btn" class="filter-btn">Filter</button>
+            </div>
+
+            <!-- Search Bar -->
+            <input type="text" id="search-bar" placeholder="Search by name..." />
+
+            <!-- Combined Table -->
+            <div id="registration-table">
+                <!-- Student Table -->
+                <table id="student-table" class="registration-table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -64,15 +78,9 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h3>Faculty Registration Details</h3>
-            <input type="text" id="search-faculty-bar" placeholder="Search by name..." />
-            <button class="toggle-btn" onclick="toggleCard('faculty-card')">👁️</button>
-            <div id="faculty-card">
-                <table id="faculty-table">
+
+                <!-- Faculty Table -->
+                <table id="faculty-table" class="registration-table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -88,15 +96,9 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h3>Admin Registration Details</h3>
-            <input type="text" id="search-admin-bar" placeholder="Search by name..." />
-            <button class="toggle-btn" onclick="toggleCard('admin-card')">👁️</button>
-            <div id="admin-card">
-                <table id="admin-table">
+
+                <!-- Admin Table -->
+                <table id="admin-table" class="registration-table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -112,22 +114,15 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h3>Visitor Registration Details</h3>
-            <input type="text" id="search-visitor-bar" placeholder="Search by name..." />
-            <button class="toggle-btn" onclick="toggleCard('visitor-card')">👁️</button>
-            <div id="visitor-card">
-                <table id="visitor-table">
+                <!-- Visitor Table -->
+                <table id="visitor-table" class="registration-table">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Last Name</th>
                             <th>Given Name</th>
                             <th>MI</th>
-                            <th>School Field</th>
+                            <th>Department</th>
                         </tr>
                     </thead>
                     <tbody id="visitor-table-body">
@@ -138,35 +133,7 @@
                 </table>
             </div>
         </div>
-        
-        <script>
-            function toggleCard(cardId) {
-                const card = document.getElementById(cardId);
-                const toggleButton = event.target;
-        
-                // Toggle visibility of the whole card
-                if (card.style.display === "none") {
-                    card.style.display = "block";
-                    toggleButton.textContent = "👁️";  // Show eye icon when card is visible
-                } else {
-                    card.style.display = "none";
-                    toggleButton.textContent = "👁️‍🗨️";  // Show eye with a slash when card is hidden
-                }
-            }
 
-            document.getElementById("history-link").addEventListener("click", function(event) {
-    event.preventDefault();  // Prevents the default action of the link
-    const dropdown = document.getElementById("history-dropdown");
-    // Toggle the display style between "block" (visible) and "none" (hidden)
-    if (dropdown.style.display === "none" || dropdown.style.display === "") {
-        dropdown.style.display = "block";
-    } else {
-        dropdown.style.display = "none";
-    }
-});
-
-        </script>
-        
         <style>
             .toggle-btn {
                 background: none;
@@ -176,227 +143,367 @@
                 position: absolute;
                 right: 10px;
             }
-        
+
             .card {
                 position: relative;
                 padding-right: 40px;
             }
-        
+
             .card div {
                 display: block;  /* Show content by default */
             }
+
             /* Style for the search bar */
-input[type="text"] {
-    width: 90vh;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    box-sizing: border-box; /* Ensure padding doesn't affect the width */
-    transition: border-color 0.3s ease;
-}
-
-/* Add focus effect */
-input[type="text"]:focus {
-    border-color: #007bff; /* Change border color on focus */
-    outline: none; /* Remove default focus outline */
-}
-
-/* Style for the placeholder text */
-input[type="text"]::placeholder {
-    color: #888;
-    font-style: italic;
-}
-        </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
-            authDomain: "zppsulibrary-3f15b.firebaseapp.com",
-            projectId: "zppsulibrary-3f15b",
-            storageBucket: "zppsulibrary-3f15b.appspot.com",
-            messagingSenderId: "693170608073",
-            appId: "1:693170608073:web:09d728cfb6489d7675fa18"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        let registrations = []; // Global variable to store fetched data
-        
-        // Check if user is logged in
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "login.html";
+            input[type="text"] {
+                width: 90vh;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 16px;
+                box-sizing: border-box; /* Ensure padding doesn't affect the width */
+                transition: border-color 0.3s ease;
             }
-        });
-        
-        // Logout function
-        function logout() {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'You are about to log out from the dashboard!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, log me out!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    signOut(auth)
-                        .then(() => {
-                            window.location.href = "login.html";
-                        })
-                        .catch((error) => {
-                            console.error("Error logging out:", error.message);
-                        });
-                }
-            });
-        }
-        
-        document.getElementById("logout").addEventListener("click", logout);
-        
-       // Fetch and listen for real-time updates from Firestore
-function fetchRegistrations() {
-    const registrationsCollection = collection(db, "registrations");
 
-    // Listen for changes in the 'registrations' collection in real-time
-    onSnapshot(registrationsCollection, (snapshot) => {
-        registrations = [];
-        const studentTableBody = document.getElementById("student-table-body");
-        const facultyTableBody = document.getElementById("faculty-table-body");
-        const adminTableBody = document.getElementById("admin-table-body");
-        const visitorTableBody = document.getElementById("visitor-table-body");
+            /* Add focus effect */
+            input[type="text"]:focus {
+                border-color: #007bff; /* Change border color on focus */
+                outline: none; /* Remove default focus outline */
+            }
 
-        // Clear existing table rows
-        studentTableBody.innerHTML = "<tr><td colspan='10'>Loading...</td></tr>";
-        facultyTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
-        adminTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
-        visitorTableBody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+            /* Style for the placeholder text */
+            input[type="text"]::placeholder {
+                color: #888;
+                font-style: italic;
+            }
 
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            registrations.push(data);
-        });
+            /* Hide tables initially */
+            .registration-table {
+                width: 100%;
+                display: none; /* Hide both tables by default */
+                margin-top: 20px;
+                table-layout: auto; /* Allow table to stretch */
+            }
 
-        let studentData = registrations.filter(reg => reg["patron-type"] === "Student");
-        let facultyData = registrations.filter(reg => reg["patron-type"] === "Faculty");
-        let adminData = registrations.filter(reg => reg["patron-type"] === "Admin");
-        let visitorData = registrations.filter(reg => reg["patron-type"] === "Visitor");
+            /* Show selected table */
+            .show {
+                display: table; /* Use table display for shown tables */
+            }
 
-        // Render each table
-        renderTable("student", studentData);
-        renderTable("faculty", facultyData);
-        renderTable("admin", adminData);
-        renderTable("visitor", visitorData);
-    });
+            /* Filter button and dropdown */
+            .filter-container {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 15px;
+            }
+
+            .filter-select {
+                padding: 8px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            .filter-btn {
+                padding: 8px 15px;
+                background-color: maroon;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .filter-btn:hover {
+                background-color: goldenrod;
+            }
+
+            /* Make the table cells stretch */
+            th, td {
+                padding: 12px;
+                text-align: left;
+                word-wrap: break-word; /* Allow word wrapping for long text */
+                vertical-align: top; /* Ensure text is aligned properly in each cell */
+            }
+        </style>
+    </div>
+
+    <script>
+        document.getElementById("history-link").addEventListener("click", function(event) {
+event.preventDefault();  // Prevents the default action of the link
+const dropdown = document.getElementById("history-dropdown");
+// Toggle the display style between "block" (visible) and "none" (hidden)
+if (dropdown.style.display === "none" || dropdown.style.display === "") {
+    dropdown.style.display = "block";
+} else {
+    dropdown.style.display = "none";
 }
-
-// Render the tables based on patron type
-function renderTable(type, data) {
-    const tableBody = document.getElementById(`${type}-table-body`);
-    tableBody.innerHTML = "";
-
-    // Reverse the data so the newest entries come first
-    const reversedData = data.reverse();
-
-    reversedData.forEach((item, index) => {
-        let row;
-        if (type === "student") {
-            row = `
-                <td>${index + 1}</td>
-                <td>${item.lastname || "N/A"}</td>
-                <td>${item.givenname || "N/A"}</td>
-                <td>${item.mi || "N/A"}</td>
-                <td>${item.program || "N/A"}</td>
-                <td>${item.course || "N/A"}</td>
-                <td>${item.major || "N/A"}</td>
-                <td>${item.school_year || "N/A"}</td>
-                <td>${item.semester || "N/A"}</td>
-                <td>${item["patron-type"] || "N/A"}</td>
-            `;
-        } else if (type === "faculty") {
-            row = `
-                <td>${index + 1}</td>
-                <td>${item.lastname || "N/A"}</td>
-                <td>${item.givenname || "N/A"}</td>
-                <td>${item.mi || "N/A"}</td>
-                <td>${item.program || "N/A"}</td>
-            `;
-        } else if (type === "admin") {
-            row = `
-                <td>${index + 1}</td>
-                <td>${item.lastname || "N/A"}</td>
-                <td>${item.givenname || "N/A"}</td>
-                <td>${item.mi || "N/A"}</td>
-                <td>${item.department || "N/A"}</td>
-            `;
-        } else if (type === "visitor") {
-            row = `
-                <td>${index + 1}</td>
-                <td>${item.lastname || "N/A"}</td>
-                <td>${item.givenname || "N/A"}</td>
-                <td>${item.mi || "N/A"}</td>
-                <td>${item.school || "N/A"}</td>
-            `;
-        }
-
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = row;
-        tableBody.appendChild(newRow);
-    });
-}
-
-
-// Search functionality for each table
-document.getElementById("search-student-bar").addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredData = registrations.filter((reg) =>
-        reg["patron-type"] === "Student" &&
-        (reg.givenname?.toLowerCase().includes(searchTerm) ||
-         reg.lastname?.toLowerCase().includes(searchTerm))
-    );
-    renderTable("student", filteredData);
 });
-
-document.getElementById("search-faculty-bar").addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredData = registrations.filter((reg) =>
-        reg["patron-type"] === "Faculty" &&
-        (reg.givenname?.toLowerCase().includes(searchTerm) ||
-         reg.lastname?.toLowerCase().includes(searchTerm))
-    );
-    renderTable("faculty", filteredData);
-});
-
-document.getElementById("search-admin-bar").addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredData = registrations.filter((reg) =>
-        reg["patron-type"] === "Admin" &&
-        (reg.givenname?.toLowerCase().includes(searchTerm) ||
-         reg.lastname?.toLowerCase().includes(searchTerm))
-    );
-    renderTable("admin", filteredData);
-});
-
-document.getElementById("search-visitor-bar").addEventListener("input", (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredData = registrations.filter((reg) =>
-        reg["patron-type"] === "Visitor" &&
-        (reg.givenname?.toLowerCase().includes(searchTerm) ||
-         reg.lastname?.toLowerCase().includes(searchTerm))
-    );
-    renderTable("visitor", filteredData);
-});
-
-fetchRegistrations();
 
     </script>
 
+    <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAATH_41xPWHK7FWORsbKvFZNjgN0nwzS8",
+    authDomain: "zppsulibrary-3f15b.firebaseapp.com",
+    projectId: "zppsulibrary-3f15b",
+    storageBucket: "zppsulibrary-3f15b.appspot.com",
+    messagingSenderId: "693170608073",
+    appId: "1:693170608073:web:09d728cfb6489d7675fa18"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let studentRegistrations = []; // Global variable to store student data
+let facultyRegistrations = []; // Global variable to store faculty data
+let adminRegistrations = [];   // Global variable to store admin data
+let visitorRegistrations = []; // Global variable to store visitor data
+
+// Check if user is logged in
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+    }
+});
+
+// Logout function
+function logout() {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to log out from the dashboard!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, log me out!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            signOut(auth)
+                .then(() => {
+                    window.location.href = "login.html";
+                })
+                .catch((error) => {
+                    console.error("Error logging out:", error.message);
+                });
+        }
+    });
+}
+
+// Fetch student data from Firestore where patron-type is "student"
+async function fetchStudentRegistrations() {
+    const registrationsRef = collection(db, 'registrations');
+    const q = query(registrationsRef, where("patron-type", "==", "Student"));
+    const querySnapshot = await getDocs(q);
+
+    studentRegistrations = [];
+    querySnapshot.forEach((doc, index) => {
+        const data = doc.data();
+        studentRegistrations.push({
+            id: doc.id,
+            lastName: data.lastname,
+            givenName: data.givenname,
+            mi: data.mi,
+            program: data.program,
+            course: data.course,
+            major: data.major,
+            schoolYear: data.school_year,
+            semester: data.semester,
+            patronType: data['patron-type'],
+        });
+    });
+
+    populateStudentTable();
+}
+
+// Populate student table with fetched data
+function populateStudentTable() {
+    const studentTableBody = document.getElementById('student-table-body');
+    studentTableBody.innerHTML = '';
+
+    if (studentRegistrations.length > 0) {
+        studentRegistrations.forEach((student, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${student.lastName}</td>
+                <td>${student.givenName}</td>
+                <td>${student.mi}</td>
+                <td>${student.program}</td>
+                <td>${student.course}</td>
+                <td>${student.major}</td>
+                <td>${student.schoolYear}</td>
+                <td>${student.semester}</td>
+                <td>${student.patronType}</td>
+            `;
+            studentTableBody.appendChild(row);
+        });
+    } else {
+        studentTableBody.innerHTML = '<tr><td colspan="10">No data available</td></tr>';
+    }
+}
+
+// Fetch faculty data from Firestore where patron-type is "faculty"
+async function fetchFacultyRegistrations() {
+    const registrationsRef = collection(db, 'registrations');
+    const q = query(registrationsRef, where("patron-type", "==", "Faculty"));
+    const querySnapshot = await getDocs(q);
+
+    facultyRegistrations = [];
+    querySnapshot.forEach((doc, index) => {
+        const data = doc.data();
+        facultyRegistrations.push({
+            id: doc.id,
+            lastName: data.lastname,
+            givenName: data.givenname,
+            mi: data.mi,
+            program: data.program,
+        });
+    });
+
+    populateFacultyTable();
+}
+
+// Populate faculty table with fetched data
+function populateFacultyTable() {
+    const facultyTableBody = document.getElementById('faculty-table-body');
+    facultyTableBody.innerHTML = '';
+
+    if (facultyRegistrations.length > 0) {
+        facultyRegistrations.forEach((faculty, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${faculty.lastName}</td>
+                <td>${faculty.givenName}</td>
+                <td>${faculty.mi}</td>
+                <td>${faculty.program}</td>
+            `;
+            facultyTableBody.appendChild(row);
+        });
+    } else {
+        facultyTableBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+    }
+}
+
+// Fetch admin data from Firestore where patron-type is "admin"
+async function fetchAdminRegistrations() {
+    const registrationsRef = collection(db, 'registrations');
+    const q = query(registrationsRef, where("patron-type", "==", "Admin"));
+    const querySnapshot = await getDocs(q);
+
+    adminRegistrations = [];
+    querySnapshot.forEach((doc, index) => {
+        const data = doc.data();
+        adminRegistrations.push({
+            id: doc.id,
+            lastName: data.lastname,
+            givenName: data.givenname,
+            mi: data.mi,
+            department: data.department,
+        });
+    });
+
+    populateAdminTable();
+}
+
+// Populate admin table with fetched data
+function populateAdminTable() {
+    const adminTableBody = document.getElementById('admin-table-body');
+    adminTableBody.innerHTML = '';
+
+    if (adminRegistrations.length > 0) {
+        adminRegistrations.forEach((admin, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${admin.lastName}</td>
+                <td>${admin.givenName}</td>
+                <td>${admin.mi}</td>
+                <td>${admin.department}</td>
+            `;
+            adminTableBody.appendChild(row);
+        });
+    } else {
+        adminTableBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+    }
+}
+
+// Fetch visitor data from Firestore where patron-type is "visitor"
+async function fetchVisitorRegistrations() {
+    const registrationsRef = collection(db, 'registrations');
+    const q = query(registrationsRef, where("patron-type", "==", "Visitor"));
+    const querySnapshot = await getDocs(q);
+
+    visitorRegistrations = [];
+    querySnapshot.forEach((doc, index) => {
+        const data = doc.data();
+        visitorRegistrations.push({
+            id: doc.id,
+            lastName: data.lastname,
+            givenName: data.givenname,
+            mi: data.mi,
+            school: data.school,
+        });
+    });
+
+    populateVisitorTable();
+}
+
+// Populate visitor table with fetched data
+function populateVisitorTable() {
+    const visitorTableBody = document.getElementById('visitor-table-body');
+    visitorTableBody.innerHTML = '';
+
+    if (visitorRegistrations.length > 0) {
+        visitorRegistrations.forEach((visitor, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${visitor.lastName}</td>
+                <td>${visitor.givenName}</td>
+                <td>${visitor.mi}</td>
+                <td>${visitor.school}</td>
+            `;
+            visitorTableBody.appendChild(row);
+        });
+    } else {
+        visitorTableBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+    }
+}
+
+// Filter Button Action
+document.getElementById('filter-btn').addEventListener('click', () => {
+    const selectedType = document.getElementById('registration-type').value;
+
+    // Hide all tables
+    document.getElementById('student-table').classList.remove('show');
+    document.getElementById('faculty-table').classList.remove('show');
+    document.getElementById('admin-table').classList.remove('show');
+    document.getElementById('visitor-table').classList.remove('show');
+
+    // Show the selected table and fetch corresponding data
+    if (selectedType === 'student') {
+        document.getElementById('student-table').classList.add('show');
+        fetchStudentRegistrations(); // Fetch student data
+    } else if (selectedType === 'faculty') {
+        document.getElementById('faculty-table').classList.add('show');
+        fetchFacultyRegistrations(); // Fetch faculty data
+    } else if (selectedType === 'admin') {
+        document.getElementById('admin-table').classList.add('show');
+        fetchAdminRegistrations(); // Fetch admin data
+    } else if (selectedType === 'visitor') {
+        document.getElementById('visitor-table').classList.add('show');
+        fetchVisitorRegistrations(); // Fetch visitor data
+    }
+});
+
+document.getElementById("logout").addEventListener("click", logout);
+
+
+    </script>
 
 </body>
 </html>

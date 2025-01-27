@@ -124,7 +124,7 @@
         }
     </style>
 
-   <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
     import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
@@ -163,16 +163,22 @@
         tableBody.innerHTML = ""; // Clear previous table data
 
         data.forEach((facultyMember, index) => {
+            // Combine submissionDate and submissionDates
+            const submissionDetails = `
+                ${facultyMember.submissionDate || "N/A"}<br>
+                ${facultyMember.submissionDates ? facultyMember.submissionDates.join("<br>") : ""}
+            `.trim(); // Display submissionDate followed by all submissionDates
+
             const row = document.createElement("tr");
             row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${facultyMember.lastname || "N/A"}</td>
-            <td>${facultyMember.givenname || "N/A"}</td>
-            <td>${facultyMember.mi || "N/A"}</td>
-            <td>${facultyMember.school || "N/A"}</td>
-            <td>${facultyMember["patron-type"] || "N/A"}</td>
-            <td>${facultyMember.submissionDate || "N/A"}</td>
-            <td>${facultyMember.scanCount || "N/A"}</td>
+                <td>${index + 1}</td>
+                <td>${facultyMember.lastname || "N/A"}</td>
+                <td>${facultyMember.givenname || "N/A"}</td>
+                <td>${facultyMember.mi || "N/A"}</td>
+                <td>${facultyMember.school || "N/A"}</td>
+                <td>${facultyMember["patron-type"] || "N/A"}</td>
+                <td>${submissionDetails}</td>
+                <td>${facultyMember.scanCount || "N/A"}</td>
             `;
             tableBody.appendChild(row);
         });
@@ -223,6 +229,7 @@
 
     document.getElementById("logout").addEventListener("click", logout);
 </script>
+
 
 </body>
 </html>
