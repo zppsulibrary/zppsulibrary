@@ -161,7 +161,6 @@ input[type="text"]::placeholder {
             // Combine submissionDate and submissionDates
             const submissionDetails = `
                 ${facultyMember.submissionDate || "N/A"}<br>
-                ${facultyMember.submissionDates ? facultyMember.submissionDates.join("<br>") : ""}
             `.trim();
 
             const row = document.createElement("tr");

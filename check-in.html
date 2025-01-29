@@ -111,35 +111,35 @@
         });
 
         // Check-In Button Logic
-        document.getElementById("checkinButton").addEventListener("click", async () => {
-            if (!foundDocId) {
-                Swal.fire("Error", "No record selected for check-in.", "error");
-                return;
-            }
+document.getElementById("checkinButton").addEventListener("click", async () => {
+    if (!foundDocId) {
+        Swal.fire("Error", "No record selected for check-in.", "error");
+        return;
+    }
 
-            try {
-                // Firestore document reference
-                const docRef = doc(db, "registrations", foundDocId);
+    try {
+        // Firestore document reference
+        const docRef = doc(db, "registrations", foundDocId);
 
-                // Get current timestamp
-                const now = new Date();
-                const submissionDate = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
+        // Get current timestamp
+        const now = new Date();
+        const submissionDate = now.toLocaleString("en-US", { timeZone: "Asia/Manila" });
 
-                // Update Firestore fields
-                await updateDoc(docRef, {
-                    scanCount: increment(1), // Increment scanCount
-                    submissionDates: arrayUnion(submissionDate), // Add submissionDate to array
-                });
-
-                Swal.fire("Success", "Check-In successful! Your record has been updated.", "success");
-
-                // Hide the Check-In button
-                document.getElementById("checkinContainer").style.display = "none";
-            } catch (error) {
-                console.error("Error during check-in:", error);
-                Swal.fire("Error", "An error occurred while checking in. Check console for details.", "error");
-            }
+        // Update Firestore fields
+        await updateDoc(docRef, {
+            scanCount: increment(1), // Increment scanCount
+            submissionDate: submissionDate, // Update latest submissionDate
         });
+
+        Swal.fire("Success", "Check-In successful! Your record has been updated.", "success");
+
+        // Hide the Check-In button
+        document.getElementById("checkinContainer").style.display = "none";
+    } catch (error) {
+        console.error("Error during check-in:", error);
+        Swal.fire("Error", "An error occurred while checking in. Check console for details.", "error");
+    }
+});
     </script>
     <style>
          /* Search Button Styling */

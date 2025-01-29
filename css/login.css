@@ -6,9 +6,8 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f4f4f9;
+    background-image: url("../img/zppsulibrary.jpg");
   }
-
   .container {
     display: flex;
     background: white;

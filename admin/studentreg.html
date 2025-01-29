@@ -168,8 +168,7 @@ function populateTable(data) {
     data.forEach((student, index) => {
         // Combine submissionDate and submissionDates
         const submissionDetails = `
-            ${student.submissionDate || "N/A"}<br>
-            ${student.submissionDates ? student.submissionDates.join("<br>") : ""}
+            ${student.submissionDate || "N/A"}
         `.trim(); // Display submissionDate followed by all submissionDates
 
         const row = document.createElement("tr");
